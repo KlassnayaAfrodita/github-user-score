@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package collector;
+option go_package = "github.com/KlassnayaAfrodita/github-user-score/collector/pkg/proto;collectorpb";
+
+
+service CollectorService {
+  rpc CollectUserStats (CollectUserStatsRequest) returns (CollectUserStatsResponse);
+}
+
+message CollectUserStatsRequest {
+  string username = 1;
+}
+
+message CollectUserStatsResponse {
+  int32 repos = 1;
+  int32 stars = 2;
+  int32 forks = 3;
+  int32 commits = 4;
+  string error = 5; // если ошибка, остальные поля = 0
+}
