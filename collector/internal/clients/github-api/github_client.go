@@ -10,3 +10,13 @@ type Stats struct {
 type GitHubClient interface {
 	GetStats(username string) (Stats, error)
 }
+
+// пока заглушка
+func GetStats(username string) (Stats, error) {
+	return Stats{
+		Repos:   1,
+		Stars:   1,
+		Forks:   1,
+		Commits: 1,
+	}, nil
+}
