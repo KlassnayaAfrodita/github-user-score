@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/stretchr/testify/require"
 
 	"github.com/KlassnayaAfrodita/github-user-score/collector/pkg/database"
 )
@@ -28,9 +29,7 @@ func setup(t *testing.T) {
 
 	var err error
 	testPool, err = pgxpool.New(context.Background(), dbURL)
-	if err != nil {
-		t.Fatalf("failed to connect to test database: %v", err)
-	}
+	require.NoError(t, err, "failed to connect to test database")
 
 	db := database.NewDatabase(testPool)
 	testRepo = &CollectorRepository{db: db}
@@ -51,26 +50,16 @@ func TestCreateAndGetUserByUsername(t *testing.T) {
 	username := fmt.Sprintf("testuser_%d", time.Now().UnixNano())
 
 	user, err := testRepo.CreateUser(ctx, username)
-	if err != nil {
-		t.Fatalf("CreateUser failed: %v", err)
-	}
+	require.NoError(t, err)
 	defer cleanupUser(ctx, t, user.ID)
 
-	if user.Username != username {
-		t.Errorf("expected username %q, got %q", username, user.Username)
-	}
+	require.Equal(t, username, user.Username, "username should match the one provided to CreateUser")
 
 	fetched, err := testRepo.GetUserByUsername(ctx, username)
-	if err != nil {
-		t.Fatalf("GetUserByUsername failed: %v", err)
-	}
+	require.NoError(t, err)
 
-	if fetched.ID != user.ID {
-		t.Errorf("expected ID %d, got %d", user.ID, fetched.ID)
-	}
-	if fetched.Username != user.Username {
-		t.Errorf("expected username %q, got %q", user.Username, fetched.Username)
-	}
+	require.Equal(t, user.ID, fetched.ID, "fetched user ID should match created user ID")
+	require.Equal(t, user.Username, fetched.Username, "fetched username should match created username")
 }
 
 func TestSaveUserStats(t *testing.T) {
@@ -79,9 +68,7 @@ func TestSaveUserStats(t *testing.T) {
 
 	username := fmt.Sprintf("statsuser_%d", time.Now().UnixNano())
 	user, err := testRepo.CreateUser(ctx, username)
-	if err != nil {
-		t.Fatalf("CreateUser failed: %v", err)
-	}
+	require.NoError(t, err)
 	defer cleanupUser(ctx, t, user.ID)
 
 	stats := Stats{
@@ -92,18 +79,11 @@ func TestSaveUserStats(t *testing.T) {
 		Commits: 42,
 	}
 
-	err = testRepo.SaveUserStats(ctx, stats)
-	if err != nil {
-		t.Fatalf("SaveUserStats failed: %v", err)
-	}
+	require.NoError(t, testRepo.SaveUserStats(ctx, stats))
 
 	var got Stats
 	row := testPool.QueryRow(ctx, "SELECT user_id, repos, stars, forks, commits FROM user_stats WHERE user_id=$1", user.ID)
-	if err := row.Scan(&got.UserID, &got.Repos, &got.Stars, &got.Forks, &got.Commits); err != nil {
-		t.Fatalf("failed to fetch saved stats: %v", err)
-	}
+	require.NoError(t, row.Scan(&got.UserID, &got.Repos, &got.Stars, &got.Forks, &got.Commits))
 
-	if got != stats {
-		t.Errorf("saved stats mismatch, expected %+v, got %+v", stats, got)
-	}
+	require.Equal(t, stats, got, "saved stats should match input stats")
 }
