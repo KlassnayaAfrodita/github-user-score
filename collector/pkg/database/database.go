@@ -11,6 +11,10 @@ type Database struct {
 	pool *pgxpool.Pool
 }
 
+func NewDatabase(pool *pgxpool.Pool) *Database {
+	return &Database{pool: pool}
+}
+
 func (db *Database) InitTransaction(ctx context.Context, nameTx string) (pgx.Tx, error) {
 	conn, err := db.pool.Acquire(ctx)
 	if err != nil {

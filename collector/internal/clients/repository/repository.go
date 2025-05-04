@@ -26,13 +26,15 @@ type CollectorRepositoryInterface interface {
 	SaveUserStats(ctx context.Context, stats Stats) error
 }
 
-type CollectorRepository struct{}
+type CollectorRepository struct {
+	db *database.Database
+}
 
-func NewCollectorRepository() *CollectorRepositoryInterface {
+func NewCollectorRepository() *CollectorRepository {
 	return &CollectorRepository{}
 }
 
-const SaveStatsQuery = `INSERT INTO user_stats (user_id, repos, stars, forks, commits, updated_at)
+const saveStatsQuery = `INSERT INTO user_stats (user_id, repos, stars, forks, commits, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		ON CONFLICT (user_id) DO UPDATE
 		SET repos = EXCLUDED.repos,
@@ -42,12 +44,13 @@ const SaveStatsQuery = `INSERT INTO user_stats (user_id, repos, stars, forks, co
 		    updated_at = EXCLUDED.updated_at`
 
 func (repo *CollectorRepository) SaveUserStats(ctx context.Context, stats Stats) error {
-	tx, err := database.InitTransaction(ctx, "SaveUserStats")
+	tx, err := repo.db.InitTransaction(ctx, "SaveUserStats")
 	if err != nil {
 		return fmt.Errorf("repository.SaveUserStats: %w", err)
 	}
 
-	_, err := tx.Exec(SaveStatsQuery,
+	defer tx.Rollback(ctx)
+	_, err = tx.Exec(ctx, saveStatsQuery,
 		stats.UserID,
 		stats.Repos,
 		stats.Stars,
@@ -55,13 +58,54 @@ func (repo *CollectorRepository) SaveUserStats(ctx context.Context, stats Stats)
 		stats.Commits,
 		time.Now(),
 	)
+	if err != nil {
+		return fmt.Errorf("repository.SaveUserStats: %w", err)
+	}
 
+	tx.Commit(ctx)
+	return nil
 }
+
+const createUser = `INSERT INTO users (username) VALUES ($1) RETURNING id`
 
 func (repo *CollectorRepository) CreateUser(ctx context.Context, username string) (*User, error) {
-	return &User{}, nil
+	tx, err := repo.db.InitTransaction(ctx, "CreateUser")
+	if err != nil {
+		return &User{}, fmt.Errorf("repository.CreateUser: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	var id int
+	err = tx.QueryRow(ctx, createUser, username).Scan(&id)
+	if err != nil {
+		return nil, fmt.Errorf("repository.CreateUser: %w", err)
+	}
+
+	tx.Commit(ctx)
+	return &User{
+		ID:       id,
+		Username: username,
+	}, nil
 }
 
+const getByUsername = `SELECT id, username FROM users WHERE username = $1`
+
 func (repo *CollectorRepository) GetUserByUsername(ctx context.Context, username string) (*User, error) {
-	return &User{}, nil
+	tx, err := repo.db.InitTransaction(ctx, "GetUserByUsername")
+	if err != nil {
+		return &User{}, fmt.Errorf("repository.GetUserByUsername: %w", err)
+	}
+
+	defer tx.Rollback(ctx)
+
+	var user User
+	row := tx.QueryRow(ctx, getByUsername, username)
+
+	err = row.Scan(&user.ID, &user.Username)
+	if err != nil {
+		return &user, fmt.Errorf("repository.GetUserByUsername: %w", err)
+	}
+
+	tx.Commit(ctx)
+	return &user, nil
 }
