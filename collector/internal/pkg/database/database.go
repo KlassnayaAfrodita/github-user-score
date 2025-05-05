@@ -23,8 +23,27 @@ func (db *Database) InitTransaction(ctx context.Context, nameTx string) (pgx.Tx,
 
 	tx, err := conn.Begin(ctx)
 	if err != nil {
+		conn.Release()
 		return nil, fmt.Errorf("db.InitTransaction: %w", err)
 	}
 
-	return tx, nil
+	return &txWithRelease{
+		Tx:   tx,
+		conn: conn,
+	}, nil
+}
+
+type txWithRelease struct {
+	pgx.Tx
+	conn *pgxpool.Conn
+}
+
+func (tx *txWithRelease) Commit(ctx context.Context) error {
+	defer tx.conn.Release()
+	return tx.Tx.Commit(ctx)
+}
+
+func (tx *txWithRelease) Rollback(ctx context.Context) error {
+	defer tx.conn.Release()
+	return tx.Tx.Rollback(ctx)
 }

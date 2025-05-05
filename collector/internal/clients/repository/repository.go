@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/pkg/database"
+	"github.com/jackc/pgx/v5"
 	"time"
 )
 
@@ -25,6 +26,7 @@ type CollectorRepositoryInterface interface {
 	CreateUser(ctx context.Context, username string) (*User, error)
 	SaveUserStats(ctx context.Context, stats Stats) error
 	GetOutdatedUsers(ctx context.Context, threshold time.Duration) ([]User, error)
+	GetUserStats(ctx context.Context, userID int) (Stats, error)
 }
 
 type CollectorRepository struct {
@@ -51,6 +53,7 @@ func (repo *CollectorRepository) SaveUserStats(ctx context.Context, stats Stats)
 	}
 
 	defer tx.Rollback(ctx)
+
 	_, err = tx.Exec(ctx, saveStatsQuery,
 		stats.UserID,
 		stats.Repos,
@@ -74,6 +77,7 @@ func (repo *CollectorRepository) CreateUser(ctx context.Context, username string
 	if err != nil {
 		return &User{}, fmt.Errorf("repository.CreateUser: %w", err)
 	}
+
 	defer tx.Rollback(ctx)
 
 	var id int
@@ -103,7 +107,12 @@ func (repo *CollectorRepository) GetUserByUsername(ctx context.Context, username
 	row := tx.QueryRow(ctx, getByUsername, username)
 
 	err = row.Scan(&user.ID, &user.Username)
-	if err != nil {
+	switch err {
+	case nil:
+	// продолжаем просто
+	case pgx.ErrNoRows:
+		return nil, nil
+	default:
 		return nil, fmt.Errorf("repository.GetUserByUsername: %w", err)
 	}
 
@@ -135,12 +144,43 @@ func (repo *CollectorRepository) GetOutdatedUsers(ctx context.Context, threshold
 	var users []User
 	for rows.Next() {
 		var user User
-		if err := rows.Scan(&user.ID, &user.Username); err != nil {
-			return nil, err
+		err := rows.Scan(&user.ID, &user.Username)
+		switch err {
+		case nil:
+		// продолжаем просто
+		case pgx.ErrNoRows:
+			return nil, nil
+		default:
+			return nil, fmt.Errorf("repository.GetUserByUsername: %w", err)
 		}
 		users = append(users, user)
 	}
 
 	tx.Commit(ctx)
 	return users, nil
+}
+
+const getUserStats = `SELECT user_id, repos, stars, forks, commits FROM user_stats WHERE user_id = $1`
+
+func (repo *CollectorRepository) GetUserStats(ctx context.Context, userID int) (Stats, error) {
+	tx, err := repo.db.InitTransaction(ctx, "GetUserStats")
+	if err != nil {
+		return Stats{}, fmt.Errorf("repository.GetUserStats: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	var stats Stats
+	err = tx.QueryRow(ctx, getUserStats, userID).Scan(
+		&stats.UserID,
+		&stats.Repos,
+		&stats.Stars,
+		&stats.Forks,
+		&stats.Commits,
+	)
+	if err != nil {
+		return Stats{}, fmt.Errorf("repository.GetUserStats: %w", err)
+	}
+
+	tx.Commit(ctx)
+	return stats, nil
 }

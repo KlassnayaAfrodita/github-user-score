@@ -1,4 +1,4 @@
-package collector_service
+package main
 
 import (
 	"context"
@@ -16,16 +16,19 @@ import (
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/controllers"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	dbURL := os.Getenv("DATABASE_URL")
-	if dbURL == "" {
-		log.Fatal("DATABASE_URL is not set")
-	}
+	//dbURL := os.Getenv("DATABASE_URL")
+	//if dbURL == "" {
+	//	log.Fatal("DATABASE_URL is not set")
+	//}
+
+	dbURL := "postgres://testuser:testpass@localhost:5432/test_db_collector?sslmode=disable"
 
 	pool, err := pgxpool.New(ctx, dbURL)
 	if err != nil {
@@ -46,6 +49,8 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	pb.RegisterCollectorServiceServer(grpcServer, controllers.NewCollectorHandler(service))
+
+	reflection.Register(grpcServer)
 
 	go func() {
 		log.Println("starting gRPC server on :50051")
