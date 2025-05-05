@@ -7,7 +7,7 @@ import (
 )
 
 type CollectorServiceInterface interface {
-	CollectStats(ctx context.Context, username string) error
+	CollectStats(ctx context.Context, username string) (repository.Stats, error)
 }
 
 type CollectorService struct {

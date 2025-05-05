@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	github "github.com/KlassnayaAfrodita/github-user-score/collector/internal/clients/github-api"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/clients/repository"
@@ -16,8 +15,7 @@ import (
 	pb "github.com/KlassnayaAfrodita/github-user-score/collector/pb"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/pkg/database"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/robfig/cron/v3"
-	"google.golang.org/grpc"
+	grpc "google.golang.org/grpc"
 )
 
 func main() {
@@ -49,7 +47,6 @@ func main() {
 	grpcServer := grpc.NewServer()
 	pb.RegisterCollectorServiceServer(grpcServer, controllers.NewCollectorHandler(service))
 
-	// 5. Graceful shutdown
 	go func() {
 		log.Println("starting gRPC server on :50051")
 		if err := grpcServer.Serve(lis); err != nil {
