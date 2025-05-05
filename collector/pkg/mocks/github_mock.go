@@ -3,7 +3,6 @@
 
 // Package mock_github_api is a generated GoMock package.
 package mocks
-
 import (
 	context "context"
 	reflect "reflect"

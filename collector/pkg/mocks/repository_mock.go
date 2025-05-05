@@ -7,6 +7,7 @@ package mocks
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	repository "github.com/KlassnayaAfrodita/github-user-score/collector/internal/clients/repository"
 	gomock "github.com/golang/mock/gomock"
@@ -48,6 +49,21 @@ func (m *MockCollectorRepositoryInterface) CreateUser(ctx context.Context, usern
 func (mr *MockCollectorRepositoryInterfaceMockRecorder) CreateUser(ctx, username interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockCollectorRepositoryInterface)(nil).CreateUser), ctx, username)
+}
+
+// GetOutdatedUsers mocks base method.
+func (m *MockCollectorRepositoryInterface) GetOutdatedUsers(ctx context.Context, threshold time.Duration) ([]repository.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOutdatedUsers", ctx, threshold)
+	ret0, _ := ret[0].([]repository.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOutdatedUsers indicates an expected call of GetOutdatedUsers.
+func (mr *MockCollectorRepositoryInterfaceMockRecorder) GetOutdatedUsers(ctx, threshold interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOutdatedUsers", reflect.TypeOf((*MockCollectorRepositoryInterface)(nil).GetOutdatedUsers), ctx, threshold)
 }
 
 // GetUserByUsername mocks base method.
