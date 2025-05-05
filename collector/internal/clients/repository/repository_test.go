@@ -86,3 +86,36 @@ func TestSaveUserStats(t *testing.T) {
 
 	require.Equal(t, stats, got, "saved stats should match input stats")
 }
+
+func TestGetOutdatedUsers(t *testing.T) {
+	setup(t)
+	ctx := context.Background()
+
+	username := fmt.Sprintf("outdateduser_%d", time.Now().UnixNano())
+	user, err := testRepo.CreateUser(ctx, username)
+	require.NoError(t, err)
+	defer cleanupUser(ctx, t, user.ID)
+
+	// Вставим устаревшие данные (обновлено давно)
+	_, err = testPool.Exec(ctx, `
+    INSERT INTO user_stats (user_id, repos, stars, forks, commits, updated_at)
+    VALUES ($1, 1, 2, 3, 4, $2)
+    ON CONFLICT (user_id) DO UPDATE SET updated_at = $2
+  `, user.ID, time.Now().Add(-2*time.Hour))
+	require.NoError(t, err)
+
+	// Порог 1 час — наш пользователь должен попасть
+	users, err := testRepo.GetOutdatedUsers(ctx, 1*time.Hour)
+	require.NoError(t, err)
+
+	found := false
+	for _, u := range users {
+		if u.ID == user.ID {
+			found = true
+			require.Equal(t, username, u.Username)
+			break
+		}
+	}
+
+	require.False(t, found)
+}

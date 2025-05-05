@@ -112,9 +112,9 @@ func (repo *CollectorRepository) GetUserByUsername(ctx context.Context, username
 }
 
 const getOutdatedUsersQuery = `
-	SELECT id, username FROM users 
-	JOIN user_stats ON users.id = user_stats.user_id 
-	WHERE user_stats.updated_at < NOW() - $1::interval;
+  SELECT id, username FROM users 
+  JOIN user_stats ON users.id = user_stats.user_id 
+  WHERE user_stats.updated_at < NOW() - make_interval(secs => $1)
 `
 
 func (repo *CollectorRepository) GetOutdatedUsers(ctx context.Context, threshold time.Duration) ([]User, error) {
@@ -124,7 +124,9 @@ func (repo *CollectorRepository) GetOutdatedUsers(ctx context.Context, threshold
 	}
 	defer tx.Rollback(ctx)
 
-	rows, err := tx.Query(ctx, getOutdatedUsersQuery, fmt.Sprintf("%f seconds", threshold.Seconds()))
+	seconds := int64(threshold.Seconds())
+
+	rows, err := tx.Query(ctx, getOutdatedUsersQuery, seconds)
 	if err != nil {
 		return nil, err
 	}

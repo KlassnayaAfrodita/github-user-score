@@ -52,7 +52,7 @@ func TestCollectorService_CollectStats(t *testing.T) {
 
 		stats, err := service.CollectStats(ctx, username)
 		require.ErrorContains(t, err, "service.CollectStats")
-		require.Nil(t, stats)
+		require.Equal(t, repository.Stats{}, stats)
 	})
 
 	t.Run("error creating user", func(t *testing.T) {
@@ -61,7 +61,7 @@ func TestCollectorService_CollectStats(t *testing.T) {
 
 		stats, err := service.CollectStats(ctx, username)
 		require.ErrorContains(t, err, "service.CollectStats")
-		require.Nil(t, stats)
+		require.Equal(t, repository.Stats{}, stats)
 	})
 
 	t.Run("error getting stats", func(t *testing.T) {
@@ -71,7 +71,7 @@ func TestCollectorService_CollectStats(t *testing.T) {
 
 		stats, err := service.CollectStats(ctx, username)
 		require.ErrorContains(t, err, "service.CollectStats")
-		require.Nil(t, stats)
+		require.Equal(t, repository.Stats{}, stats)
 	})
 
 	t.Run("error saving stats", func(t *testing.T) {
@@ -84,6 +84,6 @@ func TestCollectorService_CollectStats(t *testing.T) {
 
 		stats, err := service.CollectStats(ctx, username)
 		require.ErrorContains(t, err, "service.CollectStats")
-		require.Nil(t, stats)
+		require.Equal(t, repository.Stats{}, stats)
 	})
 }
