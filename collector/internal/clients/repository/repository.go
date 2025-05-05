@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"github.com/KlassnayaAfrodita/github-user-score/collector/pkg/database"
+	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/pkg/database"
 	"time"
 )
 

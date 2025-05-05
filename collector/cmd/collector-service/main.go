@@ -3,6 +3,7 @@ package collector_service
 import (
 	"context"
 	pb "github.com/KlassnayaAfrodita/github-user-score/collector/internal/pb/collector/api"
+	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/pkg/database"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/services"
 	"log"
 	"net"
@@ -13,7 +14,6 @@ import (
 	github "github.com/KlassnayaAfrodita/github-user-score/collector/internal/clients/github-api"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/clients/repository"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/controllers"
-	"github.com/KlassnayaAfrodita/github-user-score/collector/pkg/database"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 )

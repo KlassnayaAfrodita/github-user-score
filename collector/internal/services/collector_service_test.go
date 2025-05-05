@@ -3,10 +3,10 @@ package services
 import (
 	"context"
 	"errors"
+	mocks2 "github.com/KlassnayaAfrodita/github-user-score/collector/internal/pkg/mocks"
 	"testing"
 
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/clients/repository"
-	"github.com/KlassnayaAfrodita/github-user-score/collector/pkg/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
@@ -15,8 +15,8 @@ func TestCollectorService_CollectStats(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockRepo := mocks.NewMockCollectorRepositoryInterface(ctrl)
-	mockGitHub := mocks.NewMockGitHubClientInterface(ctrl)
+	mockRepo := mocks2.NewMockCollectorRepositoryInterface(ctrl)
+	mockGitHub := mocks2.NewMockGitHubClientInterface(ctrl)
 
 	service := NewCollectorService(mockRepo, mockGitHub)
 	ctx := context.Background()

@@ -6,14 +6,13 @@ package repository
 import (
 	"context"
 	"fmt"
+	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/pkg/database"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
-
-	"github.com/KlassnayaAfrodita/github-user-score/collector/pkg/database"
 )
 
 var (
