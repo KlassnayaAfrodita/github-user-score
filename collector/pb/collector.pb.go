@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.0
-// source: collector.proto
+// source: collector.pb
 
 package collectorpb
 
@@ -145,7 +145,7 @@ var File_collector_proto protoreflect.FileDescriptor
 
 const file_collector_proto_rawDesc = "" +
 	"\n" +
-	"\x0fcollector.proto\x12\tcollector\"5\n" +
+	"\x0fcollector.pb\x12\tcollector\"5\n" +
 	"\x17CollectUserStatsRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\"\x8c\x01\n" +
 	"\x18CollectUserStatsResponse\x12\x14\n" +
@@ -155,7 +155,7 @@ const file_collector_proto_rawDesc = "" +
 	"\acommits\x18\x04 \x01(\x05R\acommits\x12\x14\n" +
 	"\x05error\x18\x05 \x01(\tR\x05error2o\n" +
 	"\x10CollectorService\x12[\n" +
-	"\x10CollectUserStats\x12\".collector.CollectUserStatsRequest\x1a#.collector.CollectUserStatsResponseBPZNgithub.com/KlassnayaAfrodita/github-user-score/collector/pkg/proto;collectorpbb\x06proto3"
+	"\x10CollectUserStats\x12\".collector.CollectUserStatsRequest\x1a#.collector.CollectUserStatsResponseBPZNgithub.com/KlassnayaAfrodita/github-user-score/collector/pb;collectorpbb\x06proto3"
 
 var (
 	file_collector_proto_rawDescOnce sync.Once

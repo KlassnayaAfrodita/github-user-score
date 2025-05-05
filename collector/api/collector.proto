@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package collector;
-option go_package = "github.com/KlassnayaAfrodita/github-user-score/collector/pkg/proto;collectorpb";
+option go_package = "github.com/KlassnayaAfrodita/github-user-score/collector/pb;collectorpb";
 
 
 service CollectorService {
