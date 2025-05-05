@@ -13,8 +13,9 @@ message CollectUserStatsRequest {
 }
 
 message CollectUserStatsResponse {
-  int32 repos = 1;
-  int32 stars = 2;
-  int32 forks = 3;
-  int32 commits = 4;
+  int32 userID = 1;
+  int32 repos = 2;
+  int32 stars = 3;
+  int32 forks = 4;
+  int32 commits = 5;
 }

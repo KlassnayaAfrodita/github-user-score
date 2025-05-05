@@ -67,10 +67,11 @@ func (x *CollectUserStatsRequest) GetUsername() string {
 
 type CollectUserStatsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Repos         int32                  `protobuf:"varint,1,opt,name=repos,proto3" json:"repos,omitempty"`
-	Stars         int32                  `protobuf:"varint,2,opt,name=stars,proto3" json:"stars,omitempty"`
-	Forks         int32                  `protobuf:"varint,3,opt,name=forks,proto3" json:"forks,omitempty"`
-	Commits       int32                  `protobuf:"varint,4,opt,name=commits,proto3" json:"commits,omitempty"`
+	UserID        int32                  `protobuf:"varint,1,opt,name=userID,proto3" json:"userID,omitempty"`
+	Repos         int32                  `protobuf:"varint,2,opt,name=repos,proto3" json:"repos,omitempty"`
+	Stars         int32                  `protobuf:"varint,3,opt,name=stars,proto3" json:"stars,omitempty"`
+	Forks         int32                  `protobuf:"varint,4,opt,name=forks,proto3" json:"forks,omitempty"`
+	Commits       int32                  `protobuf:"varint,5,opt,name=commits,proto3" json:"commits,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -103,6 +104,13 @@ func (x *CollectUserStatsResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CollectUserStatsResponse.ProtoReflect.Descriptor instead.
 func (*CollectUserStatsResponse) Descriptor() ([]byte, []int) {
 	return file_collector_api_collector_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *CollectUserStatsResponse) GetUserID() int32 {
+	if x != nil {
+		return x.UserID
+	}
+	return 0
 }
 
 func (x *CollectUserStatsResponse) GetRepos() int32 {
@@ -139,12 +147,13 @@ const file_collector_api_collector_proto_rawDesc = "" +
 	"\n" +
 	"\x1dcollector/api/collector.proto\x12\tcollector\"5\n" +
 	"\x17CollectUserStatsRequest\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\"v\n" +
-	"\x18CollectUserStatsResponse\x12\x14\n" +
-	"\x05repos\x18\x01 \x01(\x05R\x05repos\x12\x14\n" +
-	"\x05stars\x18\x02 \x01(\x05R\x05stars\x12\x14\n" +
-	"\x05forks\x18\x03 \x01(\x05R\x05forks\x12\x18\n" +
-	"\acommits\x18\x04 \x01(\x05R\acommits2o\n" +
+	"\busername\x18\x01 \x01(\tR\busername\"\x8e\x01\n" +
+	"\x18CollectUserStatsResponse\x12\x16\n" +
+	"\x06userID\x18\x01 \x01(\x05R\x06userID\x12\x14\n" +
+	"\x05repos\x18\x02 \x01(\x05R\x05repos\x12\x14\n" +
+	"\x05stars\x18\x03 \x01(\x05R\x05stars\x12\x14\n" +
+	"\x05forks\x18\x04 \x01(\x05R\x05forks\x12\x18\n" +
+	"\acommits\x18\x05 \x01(\x05R\acommits2o\n" +
 	"\x10CollectorService\x12[\n" +
 	"\x10CollectUserStats\x12\".collector.CollectUserStatsRequest\x1a#.collector.CollectUserStatsResponseBIZGgithub.com/KlassnayaAfrodita/github-user-score/collector/pb;collectorpbb\x06proto3"
 
