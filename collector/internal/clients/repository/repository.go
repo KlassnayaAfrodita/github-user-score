@@ -24,14 +24,15 @@ type CollectorRepositoryInterface interface {
 	GetUserByUsername(ctx context.Context, username string) (*User, error)
 	CreateUser(ctx context.Context, username string) (*User, error)
 	SaveUserStats(ctx context.Context, stats Stats) error
+	GetOutdatedUsers(ctx context.Context, threshold time.Duration) ([]User, error)
 }
 
 type CollectorRepository struct {
 	db *database.Database
 }
 
-func NewCollectorRepository() *CollectorRepository {
-	return &CollectorRepository{}
+func NewCollectorRepository(db *database.Database) *CollectorRepository {
+	return &CollectorRepository{db: db}
 }
 
 const saveStatsQuery = `INSERT INTO user_stats (user_id, repos, stars, forks, commits, updated_at)
@@ -108,4 +109,36 @@ func (repo *CollectorRepository) GetUserByUsername(ctx context.Context, username
 
 	tx.Commit(ctx)
 	return &user, nil
+}
+
+const getOutdatedUsersQuery = `
+	SELECT id, username FROM users 
+	JOIN user_stats ON users.id = user_stats.user_id 
+	WHERE user_stats.updated_at < NOW() - $1::interval;
+`
+
+func (repo *CollectorRepository) GetOutdatedUsers(ctx context.Context, threshold time.Duration) ([]User, error) {
+	tx, err := repo.db.InitTransaction(ctx, "GetOutdatedUsers")
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	rows, err := tx.Query(ctx, getOutdatedUsersQuery, fmt.Sprintf("%f seconds", threshold.Seconds()))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.ID, &user.Username); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	tx.Commit(ctx)
+	return users, nil
 }

@@ -11,6 +11,10 @@ type GitHubClientInterface interface {
 
 type GitHubClient struct{}
 
+func NewGitHubClient() *GitHubClient {
+	return &GitHubClient{}
+}
+
 // пока заглушка
 func (g *GitHubClient) GetStats(ctx context.Context, username string) (repository.Stats, error) {
 	_ = username
