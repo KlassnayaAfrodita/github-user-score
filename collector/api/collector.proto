@@ -17,5 +17,4 @@ message CollectUserStatsResponse {
   int32 stars = 2;
   int32 forks = 3;
   int32 commits = 4;
-  string error = 5;
 }

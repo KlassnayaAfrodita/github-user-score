@@ -23,28 +23,28 @@ func NewCollectorService(repo repository.CollectorRepositoryInterface, client gi
 	}
 }
 
-func (s *CollectorService) CollectStats(ctx context.Context, username string) error {
+func (s *CollectorService) CollectStats(ctx context.Context, username string) (repository.Stats, error) {
 	user, err := s.repo.GetUserByUsername(ctx, username)
 	if err != nil {
-		return fmt.Errorf("service.CollectStats: %w", err)
+		return repository.Stats{}, fmt.Errorf("service.CollectStats: %w", err)
 	}
 	if user == nil {
 		user, err = s.repo.CreateUser(ctx, username)
 		if err != nil {
-			return fmt.Errorf("service.CollectStats: %w", err)
+			return repository.Stats{}, fmt.Errorf("service.CollectStats: %w", err)
 		}
 	}
 
 	stats, err := s.client.GetStats(ctx, username)
 	if err != nil {
-		return fmt.Errorf("service.CollectStats: %w", err)
+		return repository.Stats{}, fmt.Errorf("service.CollectStats: %w", err)
 	}
 
 	stats.UserID = user.ID
 
 	if err := s.repo.SaveUserStats(ctx, stats); err != nil {
-		return fmt.Errorf("service.CollectStats: %w", err)
+		return repository.Stats{}, fmt.Errorf("service.CollectStats: %w", err)
 	}
 
-	return nil
+	return stats, nil
 }
