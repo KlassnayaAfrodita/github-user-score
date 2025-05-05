@@ -4,13 +4,13 @@ import (
 	"context"
 	github "github.com/KlassnayaAfrodita/github-user-score/collector/internal/clients/github-api"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/clients/repository"
+	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/services"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/pkg/database"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
 	"os"
 	"time"
 
-	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/services"
 	"github.com/robfig/cron/v3"
 )
 

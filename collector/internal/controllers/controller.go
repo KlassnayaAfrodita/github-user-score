@@ -1,8 +1,8 @@
 package controllers
 
 import (
+	pb "github.com/KlassnayaAfrodita/github-user-score/collector/internal/pb/collector/api"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/services"
-	pb "github.com/KlassnayaAfrodita/github-user-score/collector/pb/collector/api"
 )
 
 type CollectorHandler struct {
