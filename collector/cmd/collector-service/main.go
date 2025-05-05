@@ -12,7 +12,7 @@ import (
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/clients/repository"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/controllers"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/services"
-	pb "github.com/KlassnayaAfrodita/github-user-score/collector/pb"
+	pb "github.com/KlassnayaAfrodita/github-user-score/collector/pb/collector/api"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/pkg/database"
 	"github.com/jackc/pgx/v5/pgxpool"
 	grpc "google.golang.org/grpc"

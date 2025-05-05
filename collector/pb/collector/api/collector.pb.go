@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v5.29.0
-// source: collector.pb
+// source: collector/api/collector.proto
 
 package collectorpb
 
@@ -30,7 +30,7 @@ type CollectUserStatsRequest struct {
 
 func (x *CollectUserStatsRequest) Reset() {
 	*x = CollectUserStatsRequest{}
-	mi := &file_collector_proto_msgTypes[0]
+	mi := &file_collector_api_collector_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -42,7 +42,7 @@ func (x *CollectUserStatsRequest) String() string {
 func (*CollectUserStatsRequest) ProtoMessage() {}
 
 func (x *CollectUserStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_collector_proto_msgTypes[0]
+	mi := &file_collector_api_collector_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +55,7 @@ func (x *CollectUserStatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CollectUserStatsRequest.ProtoReflect.Descriptor instead.
 func (*CollectUserStatsRequest) Descriptor() ([]byte, []int) {
-	return file_collector_proto_rawDescGZIP(), []int{0}
+	return file_collector_api_collector_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *CollectUserStatsRequest) GetUsername() string {
@@ -71,14 +71,13 @@ type CollectUserStatsResponse struct {
 	Stars         int32                  `protobuf:"varint,2,opt,name=stars,proto3" json:"stars,omitempty"`
 	Forks         int32                  `protobuf:"varint,3,opt,name=forks,proto3" json:"forks,omitempty"`
 	Commits       int32                  `protobuf:"varint,4,opt,name=commits,proto3" json:"commits,omitempty"`
-	Error         string                 `protobuf:"bytes,5,opt,name=error,proto3" json:"error,omitempty"` // если ошибка, остальные поля = 0
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CollectUserStatsResponse) Reset() {
 	*x = CollectUserStatsResponse{}
-	mi := &file_collector_proto_msgTypes[1]
+	mi := &file_collector_api_collector_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -90,7 +89,7 @@ func (x *CollectUserStatsResponse) String() string {
 func (*CollectUserStatsResponse) ProtoMessage() {}
 
 func (x *CollectUserStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_collector_proto_msgTypes[1]
+	mi := &file_collector_api_collector_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -103,7 +102,7 @@ func (x *CollectUserStatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CollectUserStatsResponse.ProtoReflect.Descriptor instead.
 func (*CollectUserStatsResponse) Descriptor() ([]byte, []int) {
-	return file_collector_proto_rawDescGZIP(), []int{1}
+	return file_collector_api_collector_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CollectUserStatsResponse) GetRepos() int32 {
@@ -134,47 +133,39 @@ func (x *CollectUserStatsResponse) GetCommits() int32 {
 	return 0
 }
 
-func (x *CollectUserStatsResponse) GetError() string {
-	if x != nil {
-		return x.Error
-	}
-	return ""
-}
+var File_collector_api_collector_proto protoreflect.FileDescriptor
 
-var File_collector_proto protoreflect.FileDescriptor
-
-const file_collector_proto_rawDesc = "" +
+const file_collector_api_collector_proto_rawDesc = "" +
 	"\n" +
-	"\x0fcollector.pb\x12\tcollector\"5\n" +
+	"\x1dcollector/api/collector.proto\x12\tcollector\"5\n" +
 	"\x17CollectUserStatsRequest\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\"\x8c\x01\n" +
+	"\busername\x18\x01 \x01(\tR\busername\"v\n" +
 	"\x18CollectUserStatsResponse\x12\x14\n" +
 	"\x05repos\x18\x01 \x01(\x05R\x05repos\x12\x14\n" +
 	"\x05stars\x18\x02 \x01(\x05R\x05stars\x12\x14\n" +
 	"\x05forks\x18\x03 \x01(\x05R\x05forks\x12\x18\n" +
-	"\acommits\x18\x04 \x01(\x05R\acommits\x12\x14\n" +
-	"\x05error\x18\x05 \x01(\tR\x05error2o\n" +
+	"\acommits\x18\x04 \x01(\x05R\acommits2o\n" +
 	"\x10CollectorService\x12[\n" +
-	"\x10CollectUserStats\x12\".collector.CollectUserStatsRequest\x1a#.collector.CollectUserStatsResponseBPZNgithub.com/KlassnayaAfrodita/github-user-score/collector/pb;collectorpbb\x06proto3"
+	"\x10CollectUserStats\x12\".collector.CollectUserStatsRequest\x1a#.collector.CollectUserStatsResponseBIZGgithub.com/KlassnayaAfrodita/github-user-score/collector/pb;collectorpbb\x06proto3"
 
 var (
-	file_collector_proto_rawDescOnce sync.Once
-	file_collector_proto_rawDescData []byte
+	file_collector_api_collector_proto_rawDescOnce sync.Once
+	file_collector_api_collector_proto_rawDescData []byte
 )
 
-func file_collector_proto_rawDescGZIP() []byte {
-	file_collector_proto_rawDescOnce.Do(func() {
-		file_collector_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_collector_proto_rawDesc), len(file_collector_proto_rawDesc)))
+func file_collector_api_collector_proto_rawDescGZIP() []byte {
+	file_collector_api_collector_proto_rawDescOnce.Do(func() {
+		file_collector_api_collector_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_collector_api_collector_proto_rawDesc), len(file_collector_api_collector_proto_rawDesc)))
 	})
-	return file_collector_proto_rawDescData
+	return file_collector_api_collector_proto_rawDescData
 }
 
-var file_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_collector_proto_goTypes = []any{
+var file_collector_api_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_collector_api_collector_proto_goTypes = []any{
 	(*CollectUserStatsRequest)(nil),  // 0: collector.CollectUserStatsRequest
 	(*CollectUserStatsResponse)(nil), // 1: collector.CollectUserStatsResponse
 }
-var file_collector_proto_depIdxs = []int32{
+var file_collector_api_collector_proto_depIdxs = []int32{
 	0, // 0: collector.CollectorService.CollectUserStats:input_type -> collector.CollectUserStatsRequest
 	1, // 1: collector.CollectorService.CollectUserStats:output_type -> collector.CollectUserStatsResponse
 	1, // [1:2] is the sub-list for method output_type
@@ -184,26 +175,26 @@ var file_collector_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_collector_proto_init() }
-func file_collector_proto_init() {
-	if File_collector_proto != nil {
+func init() { file_collector_api_collector_proto_init() }
+func file_collector_api_collector_proto_init() {
+	if File_collector_api_collector_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_collector_proto_rawDesc), len(file_collector_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_collector_api_collector_proto_rawDesc), len(file_collector_api_collector_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_collector_proto_goTypes,
-		DependencyIndexes: file_collector_proto_depIdxs,
-		MessageInfos:      file_collector_proto_msgTypes,
+		GoTypes:           file_collector_api_collector_proto_goTypes,
+		DependencyIndexes: file_collector_api_collector_proto_depIdxs,
+		MessageInfos:      file_collector_api_collector_proto_msgTypes,
 	}.Build()
-	File_collector_proto = out.File
-	file_collector_proto_goTypes = nil
-	file_collector_proto_depIdxs = nil
+	File_collector_api_collector_proto = out.File
+	file_collector_api_collector_proto_goTypes = nil
+	file_collector_api_collector_proto_depIdxs = nil
 }
