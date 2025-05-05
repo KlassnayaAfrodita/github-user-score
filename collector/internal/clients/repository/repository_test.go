@@ -53,13 +53,13 @@ func TestCreateAndGetUserByUsername(t *testing.T) {
 	require.NoError(t, err)
 	defer cleanupUser(ctx, t, user.ID)
 
-	require.Equal(t, username, user.Username, "username should match the one provided to CreateUser")
+	require.Equal(t, username, user.Username)
 
 	fetched, err := testRepo.GetUserByUsername(ctx, username)
 	require.NoError(t, err)
 
-	require.Equal(t, user.ID, fetched.ID, "fetched user ID should match created user ID")
-	require.Equal(t, user.Username, fetched.Username, "fetched username should match created username")
+	require.Equal(t, user.ID, fetched.ID)
+	require.Equal(t, user.Username, fetched.Username)
 }
 
 func TestSaveUserStats(t *testing.T) {

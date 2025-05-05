@@ -1,19 +1,22 @@
 package github_api
 
-type Stats struct {
-	Repos   int
-	Stars   int
-	Forks   int
-	Commits int
+import (
+	"context"
+	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/clients/repository"
+)
+
+type GitHubClientInterface interface {
+	GetStats(ctx context.Context, username string) (repository.Stats, error)
 }
 
-type GitHubClient interface {
-	GetStats(username string) (Stats, error)
-}
+type GitHubClient struct{}
 
 // пока заглушка
-func GetStats(username string) (Stats, error) {
-	return Stats{
+func (g *GitHubClient) GetStats(ctx context.Context, username string) (repository.Stats, error) {
+	_ = username
+	_ = ctx
+	return repository.Stats{
+		UserID:  1,
 		Repos:   1,
 		Stars:   1,
 		Forks:   1,

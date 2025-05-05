@@ -93,7 +93,7 @@ const getByUsername = `SELECT id, username FROM users WHERE username = $1`
 func (repo *CollectorRepository) GetUserByUsername(ctx context.Context, username string) (*User, error) {
 	tx, err := repo.db.InitTransaction(ctx, "GetUserByUsername")
 	if err != nil {
-		return &User{}, fmt.Errorf("repository.GetUserByUsername: %w", err)
+		return nil, fmt.Errorf("repository.GetUserByUsername: %w", err)
 	}
 
 	defer tx.Rollback(ctx)
@@ -103,7 +103,7 @@ func (repo *CollectorRepository) GetUserByUsername(ctx context.Context, username
 
 	err = row.Scan(&user.ID, &user.Username)
 	if err != nil {
-		return &user, fmt.Errorf("repository.GetUserByUsername: %w", err)
+		return nil, fmt.Errorf("repository.GetUserByUsername: %w", err)
 	}
 
 	tx.Commit(ctx)
