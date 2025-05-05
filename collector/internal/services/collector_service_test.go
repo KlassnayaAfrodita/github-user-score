@@ -30,7 +30,7 @@ func TestCollectorService_CollectStats(t *testing.T) {
 		mockGitHub.EXPECT().GetStats(ctx, username).Return(stats, nil)
 		mockRepo.EXPECT().SaveUserStats(ctx, repository.Stats{UserID: 1, Commits: 10}).Return(nil)
 
-		err := service.CollectStats(ctx, username)
+		stats, err := service.CollectStats(ctx, username)
 		require.NoError(t, err)
 	})
 
@@ -43,23 +43,25 @@ func TestCollectorService_CollectStats(t *testing.T) {
 		mockGitHub.EXPECT().GetStats(ctx, username).Return(stats, nil)
 		mockRepo.EXPECT().SaveUserStats(ctx, repository.Stats{UserID: 2, Commits: 5}).Return(nil)
 
-		err := service.CollectStats(ctx, username)
+		stats, err := service.CollectStats(ctx, username)
 		require.NoError(t, err)
 	})
 
 	t.Run("error getting user", func(t *testing.T) {
 		mockRepo.EXPECT().GetUserByUsername(ctx, username).Return(nil, errors.New("db error"))
 
-		err := service.CollectStats(ctx, username)
+		stats, err := service.CollectStats(ctx, username)
 		require.ErrorContains(t, err, "service.CollectStats")
+		require.Nil(t, stats)
 	})
 
 	t.Run("error creating user", func(t *testing.T) {
 		mockRepo.EXPECT().GetUserByUsername(ctx, username).Return(nil, nil)
 		mockRepo.EXPECT().CreateUser(ctx, username).Return(nil, errors.New("insert error"))
 
-		err := service.CollectStats(ctx, username)
+		stats, err := service.CollectStats(ctx, username)
 		require.ErrorContains(t, err, "service.CollectStats")
+		require.Nil(t, stats)
 	})
 
 	t.Run("error getting stats", func(t *testing.T) {
@@ -67,8 +69,9 @@ func TestCollectorService_CollectStats(t *testing.T) {
 		mockRepo.EXPECT().GetUserByUsername(ctx, username).Return(user, nil)
 		mockGitHub.EXPECT().GetStats(ctx, username).Return(repository.Stats{}, errors.New("api error"))
 
-		err := service.CollectStats(ctx, username)
+		stats, err := service.CollectStats(ctx, username)
 		require.ErrorContains(t, err, "service.CollectStats")
+		require.Nil(t, stats)
 	})
 
 	t.Run("error saving stats", func(t *testing.T) {
@@ -79,7 +82,8 @@ func TestCollectorService_CollectStats(t *testing.T) {
 		mockGitHub.EXPECT().GetStats(ctx, username).Return(stats, nil)
 		mockRepo.EXPECT().SaveUserStats(ctx, repository.Stats{UserID: 4, Commits: 8}).Return(errors.New("save error"))
 
-		err := service.CollectStats(ctx, username)
+		stats, err := service.CollectStats(ctx, username)
 		require.ErrorContains(t, err, "service.CollectStats")
+		require.Nil(t, stats)
 	})
 }
