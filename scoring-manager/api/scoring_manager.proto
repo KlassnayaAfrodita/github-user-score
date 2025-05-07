@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package scoring_manager;
+option go_package = "github.com/KlassnayaAfrodita/github-user-score/scoring-manager/internal/pb;scoringmanagerpb";
+
+service ScoringManagerService {
+  // Запуск скоринга по имени пользователя
+  rpc StartScoring (StartScoringRequest) returns (StartScoringResponse);
+
+  // Получение статуса заявки по application_id
+  rpc GetStatus (GetStatusRequest) returns (GetStatusResponse);
+}
+
+message StartScoringRequest {
+  string username = 1;
+}
+
+message StartScoringResponse {
+  string application_id = 1;
+}
+
+message GetStatusRequest {
+  string application_id = 1;
+}
+
+enum ScoringStatus {
+  INITIAL = 0;
+  SUCCESS = 1;
+  FAILED = 2;
+}
+
+message GetStatusResponse {
+  ScoringStatus status = 1;
+  int32 scoring = 2;
+}

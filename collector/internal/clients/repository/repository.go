@@ -137,7 +137,7 @@ func (repo *CollectorRepository) GetOutdatedUsers(ctx context.Context, threshold
 
 	rows, err := tx.Query(ctx, getOutdatedUsersQuery, seconds)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("repository.GetUserByUsername: %w", err)
 	}
 	defer rows.Close()
 
