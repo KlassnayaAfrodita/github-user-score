@@ -177,8 +177,13 @@ func (repo *CollectorRepository) GetUserStats(ctx context.Context, userID int) (
 		&stats.Forks,
 		&stats.Commits,
 	)
-	if err != nil {
-		return Stats{}, fmt.Errorf("repository.GetUserStats: %w", err)
+	switch err {
+	case nil:
+	// продолжаем просто
+	case pgx.ErrNoRows:
+		return Stats{}, nil
+	default:
+		return Stats{}, fmt.Errorf("repository.GetUserByUsername: %w", err)
 	}
 
 	tx.Commit(ctx)

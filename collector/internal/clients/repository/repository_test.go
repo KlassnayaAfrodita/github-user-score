@@ -119,3 +119,47 @@ func TestGetOutdatedUsers(t *testing.T) {
 
 	require.False(t, found)
 }
+
+func TestGetUserStats(t *testing.T) {
+	setup(t)
+	ctx := context.Background()
+
+	username := fmt.Sprintf("stats_test_user_%d", time.Now().UnixNano())
+	user, err := testRepo.CreateUser(ctx, username)
+	require.NoError(t, err)
+	defer cleanupUser(ctx, t, user.ID)
+
+	stats := Stats{
+		UserID:  user.ID,
+		Repos:   12,
+		Stars:   34,
+		Forks:   5,
+		Commits: 78,
+	}
+
+	// Сохраняем статистику
+	err = testRepo.SaveUserStats(ctx, stats)
+	require.NoError(t, err)
+
+	// Получаем статистику через тестируемый метод
+	got, err := testRepo.GetUserStats(ctx, user.ID)
+	require.NoError(t, err)
+
+	require.Equal(t, stats.UserID, got.UserID)
+	require.Equal(t, stats.Repos, got.Repos)
+	require.Equal(t, stats.Stars, got.Stars)
+	require.Equal(t, stats.Forks, got.Forks)
+	require.Equal(t, stats.Commits, got.Commits)
+}
+
+func TestGetUserStats_NoRows(t *testing.T) {
+	setup(t)
+	ctx := context.Background()
+
+	// Предполагаем, что пользователь с таким ID точно отсутствует
+	const nonExistentUserID = 99999999
+
+	stats, err := testRepo.GetUserStats(ctx, nonExistentUserID)
+	require.NoError(t, err)
+	require.Equal(t, Stats{}, stats, "ожидаем пустой результат, если нет данных")
+}
