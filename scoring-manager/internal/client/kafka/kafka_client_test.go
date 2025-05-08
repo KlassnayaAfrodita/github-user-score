@@ -1,77 +1,129 @@
-//go:build integration
-// +build integration
-
 package kafka
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/segmentio/kafka-go"
 	"testing"
 	"time"
-
-	"github.com/KlassnayaAfrodita/github-user-score/scoring_manager/internal/clients/kafka"
-	"github.com/stretchr/testify/require"
 )
 
 const (
 	kafkaBroker  = "localhost:9092"
-	requestTopic = "scoring_requests"
-	resultTopic  = "scoring_results"
-	groupID      = "test-group"
+	requestTopic = "scoring-requests"
+	resultTopic  = "scoring-results"
+	testGroupID  = "test-group"
 )
 
-func TestKafkaClient_PublishAndConsume(t *testing.T) {
-	// Подготовка клиента
-	client := kafka.NewKafkaClient([]string{kafkaBroker}, requestTopic, resultTopic, groupID)
-
-	ctx := context.Background()
-
-	// Пример сообщения
-	msg := kafka.ScoringResultMessage{
-		ApplicationID: fmt.Sprintf("app-%d", time.Now().UnixNano()),
-		UserID:        123,
-		Scoring:       87.5,
+func setupKafkaTopic(topic string) error {
+	conn, err := kafka.Dial("tcp", kafkaBroker)
+	if err != nil {
+		return err
 	}
+	defer conn.Close()
 
-	// Слушаем resultTopic в горутине
-	done := make(chan bool, 1)
+	controller, err := conn.Controller()
+	if err != nil {
+		return err
+	}
+	controllerConn, err := kafka.Dial("tcp", controller.Host+":"+fmt.Sprint(controller.Port))
+	if err != nil {
+		return err
+	}
+	defer controllerConn.Close()
+
+	return controllerConn.CreateTopics(kafka.TopicConfig{
+		Topic:             topic,
+		NumPartitions:     1,
+		ReplicationFactor: 1,
+	})
+}
+
+func TestKafkaClient_PublishAndConsume(t *testing.T) {
+	_ = setupKafkaTopic(requestTopic)
+	_ = setupKafkaTopic(resultTopic)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	client := NewKafkaClient([]string{kafkaBroker}, requestTopic, resultTopic, testGroupID)
+
+	expectedResult := ScoringResultMessage{
+		ApplicationID: "test-app",
+		UserID:        123,
+		Scoring:       99.1,
+	}
+	resultBytes, _ := json.Marshal(expectedResult)
+
 	go func() {
-		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-		defer cancel()
-
-		err := client.ConsumeScoringResults(ctx, func(m kafka.ScoringResultMessage) error {
-			require.Equal(t, msg.ApplicationID, m.ApplicationID)
-			require.Equal(t, msg.UserID, m.UserID)
-			require.Equal(t, msg.Scoring, m.Scoring)
-			done <- true
-			return nil
+		writer := kafka.Writer{
+			Addr:     kafka.TCP(kafkaBroker),
+			Topic:    resultTopic,
+			Balancer: &kafka.LeastBytes{},
+		}
+		defer writer.Close()
+		_ = writer.WriteMessages(context.Background(), kafka.Message{
+			Key:   []byte(expectedResult.ApplicationID),
+			Value: resultBytes,
 		})
-		require.NoError(t, err)
 	}()
 
-	// Даем Kafka немного времени "проснуться"
-	time.Sleep(2 * time.Second)
+	err := client.ConsumeScoringResults(ctx, func(result ScoringResultMessage) error {
+		if result != expectedResult {
+			t.Errorf("received unexpected result: got %+v, want %+v", result, expectedResult)
+		}
+		cancel() // прекращаем чтение после одного сообщения
+		return nil
+	})
 
-	// Публикуем результат
-	raw, err := json.Marshal(msg)
-	require.NoError(t, err)
-
-	writer := client // или использовать прямой вызов
-	err = writer.Producer().WriteMessages(ctx, kafkaMessage(msg.ApplicationID, raw))
-	require.NoError(t, err)
-
-	select {
-	case <-done:
-		// Всё прошло успешно
-	case <-time.After(10 * time.Second):
-		t.Fatal("did not receive scoring result in time")
+	if err != nil && ctx.Err() != context.Canceled {
+		t.Fatalf("error consuming scoring result: %v", err)
 	}
 }
 
-func kafkaMessage(key string, value []byte) kafka.Message {
-	return kafka.Message{
-		Key:   []byte(key),
-		Value: value,
+func TestKafkaClient_PublishScoringRequest(t *testing.T) {
+	_ = setupKafkaTopic(requestTopic)
+
+	ctx := context.Background()
+	client := NewKafkaClient([]string{kafkaBroker}, requestTopic, resultTopic, testGroupID)
+
+	testMsg := ScoringRequestMessage{
+		ApplicationID: "test-app-2",
+		UserID:        456,
+		Repos:         10,
+		Stars:         20,
+		Forks:         5,
+		Commits:       100,
+	}
+
+	err := client.PublishScoringRequest(ctx, testMsg)
+	if err != nil {
+		t.Fatalf("failed to publish scoring request: %v", err)
+	}
+
+	reader := kafka.NewReader(kafka.ReaderConfig{
+		Brokers: []string{kafkaBroker},
+		Topic:   requestTopic,
+		GroupID: "test-verification-group",
+	})
+	defer reader.Close()
+
+	readCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	m, err := reader.ReadMessage(readCtx)
+	if err != nil {
+		t.Fatalf("failed to read message from request topic: %v", err)
+	}
+
+	var received ScoringRequestMessage
+	err = json.Unmarshal(m.Value, &received)
+	if err != nil {
+		t.Fatalf("failed to unmarshal received message: %v", err)
+	}
+
+	if received != testMsg {
+		t.Errorf("received message does not match: got %+v, want %+v", received, testMsg)
 	}
 }
