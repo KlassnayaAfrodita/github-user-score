@@ -8,8 +8,8 @@ import (
 )
 
 type ScoringRepositoryInterface interface {
-	CreateScoringApplication(ctx context.Context, app ScoringApplication) error
-	UpdateScoringApplicationStatus(ctx context.Context, appID string, status ScoringStatus) error
+	CreateScoringApplication(ctx context.Context, app *ScoringApplication) error
+	UpdateScoringApplicationStatus(ctx context.Context, appID int64, status ScoringStatus) error
 	SaveScoringApplicationResult(ctx context.Context, app ScoringApplication) error
 	GetScoringApplicationByID(ctx context.Context, appID string) (ScoringApplication, error)
 }

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: scoring-manager
+    environment:
+      POSTGRES_DB: test_db_scoring_manager
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+
+#  migrator:
+#    image: migrate/migrate
+#    depends_on:
+#      - postgres
+#    volumes:
+#      - ./migrations:/migrations
+#    entrypoint: [
+#      "sh", "-c",
+#      "sleep 5 && migrate -path=/migrations -database=postgres://testuser:testpass@postgres:5432/test_db_scoring_manager?sslmode=disable up"
+#    ]

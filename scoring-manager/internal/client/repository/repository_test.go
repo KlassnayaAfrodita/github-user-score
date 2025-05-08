@@ -5,6 +5,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 
@@ -43,7 +44,7 @@ func TestCreateAndGetScoringApplication(t *testing.T) {
 
 	app := &ScoringApplication{
 		UserID: 123456,
-		Status: StatusPending,
+		Status: StatusInitial,
 	}
 
 	err := scoringRepo.CreateScoringApplication(ctx, app)
@@ -66,17 +67,17 @@ func TestUpdateScoringApplicationStatus(t *testing.T) {
 
 	app := &ScoringApplication{
 		UserID: 222222,
-		Status: StatusPending,
+		Status: StatusInitial,
 	}
 	require.NoError(t, scoringRepo.CreateScoringApplication(ctx, app))
 	defer cleanupScoring(ctx, t, app.ApplicationID)
 
-	err := scoringRepo.UpdateScoringApplicationStatus(ctx, app.ApplicationID, StatusCompleted)
+	err := scoringRepo.UpdateScoringApplicationStatus(ctx, app.ApplicationID, StatusSuccess)
 	require.NoError(t, err)
 
 	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(app.ApplicationID))
 	require.NoError(t, err)
-	require.Equal(t, StatusCompleted, fetched.Status)
+	require.Equal(t, StatusSuccess, fetched.Status)
 }
 
 func TestSaveScoringApplicationResult(t *testing.T) {
@@ -85,7 +86,7 @@ func TestSaveScoringApplicationResult(t *testing.T) {
 
 	app := &ScoringApplication{
 		UserID: 333333,
-		Status: StatusInProgress,
+		Status: StatusInitial,
 	}
 	require.NoError(t, scoringRepo.CreateScoringApplication(ctx, app))
 	defer cleanupScoring(ctx, t, app.ApplicationID)
