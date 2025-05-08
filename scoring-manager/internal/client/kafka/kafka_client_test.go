@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/segmentio/kafka-go"
+	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
 )
@@ -27,7 +28,7 @@ func setupKafkaTopic(topic string) error {
 	if err != nil {
 		return err
 	}
-	controllerConn, err := kafka.Dial("tcp", controller.Host+":"+fmt.Sprint(controller.Port))
+	controllerConn, err := kafka.Dial("tcp", fmt.Sprintf("%s:%d", controller.Host, controller.Port))
 	if err != nil {
 		return err
 	}
@@ -41,20 +42,21 @@ func setupKafkaTopic(topic string) error {
 }
 
 func TestKafkaClient_PublishAndConsume(t *testing.T) {
-	_ = setupKafkaTopic(requestTopic)
-	_ = setupKafkaTopic(resultTopic)
+	require.NoError(t, setupKafkaTopic(requestTopic))
+	require.NoError(t, setupKafkaTopic(resultTopic))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	client := NewKafkaClient([]string{kafkaBroker}, requestTopic, resultTopic, testGroupID)
 
-	expectedResult := ScoringResultMessage{
+	expected := ScoringResultMessage{
 		ApplicationID: "test-app",
 		UserID:        123,
 		Scoring:       99.1,
 	}
-	resultBytes, _ := json.Marshal(expectedResult)
+	data, err := json.Marshal(expected)
+	require.NoError(t, err)
 
 	go func() {
 		writer := kafka.Writer{
@@ -63,27 +65,25 @@ func TestKafkaClient_PublishAndConsume(t *testing.T) {
 			Balancer: &kafka.LeastBytes{},
 		}
 		defer writer.Close()
-		_ = writer.WriteMessages(context.Background(), kafka.Message{
-			Key:   []byte(expectedResult.ApplicationID),
-			Value: resultBytes,
+
+		err := writer.WriteMessages(context.Background(), kafka.Message{
+			Key:   []byte(expected.ApplicationID),
+			Value: data,
 		})
+		require.NoError(t, err)
 	}()
 
-	err := client.ConsumeScoringResults(ctx, func(result ScoringResultMessage) error {
-		if result != expectedResult {
-			t.Errorf("received unexpected result: got %+v, want %+v", result, expectedResult)
-		}
-		cancel() // прекращаем чтение после одного сообщения
+	err = client.ConsumeScoringResults(ctx, func(received ScoringResultMessage) error {
+		require.Equal(t, expected, received)
+		cancel() // Завершаем чтение после первого сообщения
 		return nil
 	})
 
-	if err != nil && ctx.Err() != context.Canceled {
-		t.Fatalf("error consuming scoring result: %v", err)
-	}
+	require.True(t, err == nil || ctx.Err() == context.Canceled, "unexpected error: %v", err)
 }
 
 func TestKafkaClient_PublishScoringRequest(t *testing.T) {
-	_ = setupKafkaTopic(requestTopic)
+	require.NoError(t, setupKafkaTopic(requestTopic))
 
 	ctx := context.Background()
 	client := NewKafkaClient([]string{kafkaBroker}, requestTopic, resultTopic, testGroupID)
@@ -98,9 +98,7 @@ func TestKafkaClient_PublishScoringRequest(t *testing.T) {
 	}
 
 	err := client.PublishScoringRequest(ctx, testMsg)
-	if err != nil {
-		t.Fatalf("failed to publish scoring request: %v", err)
-	}
+	require.NoError(t, err)
 
 	reader := kafka.NewReader(kafka.ReaderConfig{
 		Brokers: []string{kafkaBroker},
@@ -113,17 +111,10 @@ func TestKafkaClient_PublishScoringRequest(t *testing.T) {
 	defer cancel()
 
 	m, err := reader.ReadMessage(readCtx)
-	if err != nil {
-		t.Fatalf("failed to read message from request topic: %v", err)
-	}
+	require.NoError(t, err)
 
 	var received ScoringRequestMessage
 	err = json.Unmarshal(m.Value, &received)
-	if err != nil {
-		t.Fatalf("failed to unmarshal received message: %v", err)
-	}
-
-	if received != testMsg {
-		t.Errorf("received message does not match: got %+v, want %+v", received, testMsg)
-	}
+	require.NoError(t, err)
+	require.Equal(t, testMsg, received)
 }

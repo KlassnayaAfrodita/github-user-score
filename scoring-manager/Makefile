@@ -11,8 +11,8 @@ test:
 
 # Integration tests (Postgres must be running)
 integration-test:
-	set TEST_DATABASE_URL=$(DB_URL)&& go test -tags=integration -v ./internal/client/repository
-	go test -tags=integration -v ./internal/client/kafka
+	set TEST_DATABASE_URL=$(DB_URL)&& go test -tags=integration -count=1 -v ./internal/client/repository
+	go test -tags=integration -count=1 -v ./internal/client/kafka
 
 # Start Postgres, Kafka, Zookeeper
 up:
