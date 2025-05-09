@@ -41,5 +41,5 @@ func (cc *CollectorClient) GetUserStats(ctx context.Context, username string) (r
 		return repository.UserStats{}, fmt.Errorf("CollectorClient.GetUserStats: %w", err)
 	}
 
-	return utils.ToUserStats(userStats), nilss
+	return utils.ToUserStats(userStats), nil
 }
