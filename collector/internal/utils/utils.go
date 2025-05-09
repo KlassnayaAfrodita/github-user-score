@@ -2,7 +2,7 @@ package utils
 
 import (
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/clients/repository"
-	pb "github.com/KlassnayaAfrodita/github-user-score/collector/internal/pb/collector/api"
+	pb "github.com/KlassnayaAfrodita/github-user-score/collector/pkg/pb/collector/api"
 )
 
 func ToProtoStats(stats repository.Stats) *pb.CollectUserStatsResponse {

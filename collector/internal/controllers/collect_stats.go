@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"context"
-	pb "github.com/KlassnayaAfrodita/github-user-score/collector/internal/pb/collector/api"
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/utils"
+	pb "github.com/KlassnayaAfrodita/github-user-score/collector/pkg/pb/collector/api"
 )
 
 func (h *CollectorHandler) CollectUserStats(ctx context.Context, req *pb.CollectUserStatsRequest) (*pb.CollectUserStatsResponse, error) {

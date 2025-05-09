@@ -17,3 +17,11 @@ type ScoringApplication struct {
 	Status        ScoringStatus
 	Score         *int // указатель, так как score может быть null
 }
+
+type UserStats struct {
+	UserID  int32
+	Repos   int32
+	Stars   int32
+	Forks   int32
+	Commits int32
+}
