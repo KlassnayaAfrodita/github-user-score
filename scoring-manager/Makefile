@@ -1,9 +1,10 @@
 .PHONY: test integration-test up down create-topics kafka-console-producer kafka-console-consumer
 
 # ENV
-DB_URL=postgres://testuser:testpass@localhost:5432/test_db_scoring_manager?sslmode=disable
+DB_URL=postgres://testuser:testpass@localhost:5434/test_db_scoring_manager?sslmode=disable
 TOPICS=scoring_requests scoring_results
 BROKER=localhost:9092
+COLLECTOR_GRPC_ADDR=localhost:50051
 
 # Unit tests
 test:
@@ -13,6 +14,7 @@ test:
 integration-test:
 	set TEST_DATABASE_URL=$(DB_URL)&& go test -tags=integration -count=1 -v ./internal/client/repository
 	go test -tags=integration -count=1 -v ./internal/client/kafka
+	set COLLECTOR_GRPC_ADDR=$(COLLECTOR_GRPC_ADDR)&& go test -tags=integration -count=1 -v ./internal/client/grpc
 
 # Start Postgres, Kafka, Zookeeper
 up:
