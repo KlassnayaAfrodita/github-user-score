@@ -57,7 +57,7 @@ func (mr *MockScoringRepositoryInterfaceMockRecorder) CreateScoringApplication(c
 }
 
 // GetScoringApplicationByID mocks base method.
-func (m *MockScoringRepositoryInterface) GetScoringApplicationByID(ctx context.Context, appID string) (repository.ScoringApplication, error) {
+func (m *MockScoringRepositoryInterface) GetScoringApplicationByID(ctx context.Context, appID int) (repository.ScoringApplication, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetScoringApplicationByID", ctx, appID)
 	ret0, _ := ret[0].(repository.ScoringApplication)
