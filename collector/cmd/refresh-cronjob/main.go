@@ -8,7 +8,6 @@ import (
 	"github.com/KlassnayaAfrodita/github-user-score/collector/internal/services"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"log"
-	"os"
 	"time"
 
 	"github.com/robfig/cron/v3"
@@ -18,12 +17,12 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	dbURL := os.Getenv("DATABASE_URL")
-	if dbURL == "" {
-		log.Fatal("DATABASE_URL is not set")
-	}
+	//dbURL := os.Getenv("DATABASE_URL")
+	//if dbURL == "" {
+	//	log.Fatal("DATABASE_URL is not set")
+	//}
 
-	pool, err := pgxpool.New(ctx, dbURL)
+	pool, err := pgxpool.New(ctx, "postgres://testuser:testpass@localhost:5433/test_db_collector?sslmodedisable")
 	if err != nil {
 		log.Fatalf("cannot connect to db: %v", err)
 	}
