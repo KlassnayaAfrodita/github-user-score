@@ -13,8 +13,8 @@ type ScoringStatus struct {
 }
 
 type ScoringManagerServiceInterface interface {
-	StartScoring(ctx context.Context, username string) string
-	GetStatus(ctx context.Context, applicationID int) ScoringStatus
+	StartScoring(ctx context.Context, username string) (string, error)
+	GetStatus(ctx context.Context, applicationID int) (ScoringStatus, error)
 }
 
 type ScoringManagerService struct {
@@ -26,5 +26,5 @@ type ScoringManagerService struct {
 func NewScoringManagerService(repo repository.ScoringRepositoryInterface,
 	collector collectorClient.CollectorClientInterface,
 	kafka kafkaClient.ScoringKafkaClient) ScoringManagerServiceInterface {
-	return ScoringManagerService{repo: repo, collector: collector, kafka: kafka}
+	return &ScoringManagerService{repo: repo, collector: collector, kafka: kafka}
 }

@@ -8,8 +8,8 @@ import (
 	"strconv"
 )
 
-func (scoring *ScoringManagerService) StartScoring(ctx context.Context, username string) (string, error) {
-	userStats, err := scoring.collector.GetUserStats(ctx, username)
+func (service *ScoringManagerService) StartScoring(ctx context.Context, username string) (string, error) {
+	userStats, err := service.collector.GetUserStats(ctx, username)
 	if err != nil {
 		return "", fmt.Errorf("ScoringManagerService.StartScoring: %w", err)
 	}
@@ -22,7 +22,7 @@ func (scoring *ScoringManagerService) StartScoring(ctx context.Context, username
 		Score:  zeroScore,
 	}
 
-	err = scoring.repo.CreateScoringApplication(ctx, &scoringApplication)
+	scoringApplication, err = service.repo.CreateScoringApplication(ctx, scoringApplication)
 	if err != nil {
 		return "", fmt.Errorf("ScoringManagerService.StartScoring: %w", err)
 	}
@@ -36,9 +36,9 @@ func (scoring *ScoringManagerService) StartScoring(ctx context.Context, username
 		Commits:       int(userStats.Commits),
 	}
 
-	err = scoring.kafka.PublishScoringRequest(ctx, msg)
+	err = service.kafka.PublishScoringRequest(ctx, msg)
 	if err != nil {
-		return "", fmt.Errorf("ScoringManagerService.StartScoring: %w", err)
+		return msg.ApplicationID, fmt.Errorf("ScoringManagerService.StartScoring: %w", err)
 	}
 
 	return msg.ApplicationID, nil
