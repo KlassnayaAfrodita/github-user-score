@@ -42,22 +42,22 @@ func TestCreateAndGetScoringApplication(t *testing.T) {
 	setup(t)
 	ctx := context.Background()
 
-	app := &ScoringApplication{
+	app := ScoringApplication{
 		UserID: 123456,
 		Status: StatusInitial,
 	}
 
-	err := scoringRepo.CreateScoringApplication(ctx, app)
+	createdApp, err := scoringRepo.CreateScoringApplication(ctx, app)
 	require.NoError(t, err)
-	require.NotZero(t, app.ApplicationID)
+	require.NotZero(t, createdApp.ApplicationID)
 
-	defer cleanupScoring(ctx, t, app.ApplicationID)
+	defer cleanupScoring(ctx, t, createdApp.ApplicationID)
 
-	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(app.ApplicationID))
+	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(createdApp.ApplicationID))
 	require.NoError(t, err)
 
-	require.Equal(t, app.UserID, fetched.UserID)
-	require.Equal(t, app.Status, fetched.Status)
+	require.Equal(t, createdApp.UserID, fetched.UserID)
+	require.Equal(t, createdApp.Status, fetched.Status)
 	require.Nil(t, fetched.Score)
 }
 
@@ -65,17 +65,18 @@ func TestUpdateScoringApplicationStatus(t *testing.T) {
 	setup(t)
 	ctx := context.Background()
 
-	app := &ScoringApplication{
+	app := ScoringApplication{
 		UserID: 222222,
 		Status: StatusInitial,
 	}
-	require.NoError(t, scoringRepo.CreateScoringApplication(ctx, app))
-	defer cleanupScoring(ctx, t, app.ApplicationID)
+	createdApp, err := scoringRepo.CreateScoringApplication(ctx, app)
+	require.NoError(t, err)
+	defer cleanupScoring(ctx, t, createdApp.ApplicationID)
 
-	err := scoringRepo.UpdateScoringApplicationStatus(ctx, app.ApplicationID, StatusSuccess)
+	err = scoringRepo.UpdateScoringApplicationStatus(ctx, createdApp.ApplicationID, StatusSuccess)
 	require.NoError(t, err)
 
-	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(app.ApplicationID))
+	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(createdApp.ApplicationID))
 	require.NoError(t, err)
 	require.Equal(t, StatusSuccess, fetched.Status)
 }
@@ -84,18 +85,19 @@ func TestSaveScoringApplicationResult(t *testing.T) {
 	setup(t)
 	ctx := context.Background()
 
-	app := &ScoringApplication{
+	app := ScoringApplication{
 		UserID: 333333,
 		Status: StatusInitial,
 	}
-	require.NoError(t, scoringRepo.CreateScoringApplication(ctx, app))
-	defer cleanupScoring(ctx, t, app.ApplicationID)
+	createdApp, err := scoringRepo.CreateScoringApplication(ctx, app)
+	require.NoError(t, err)
+	defer cleanupScoring(ctx, t, createdApp.ApplicationID)
 
 	score := 95
-	app.Score = &score
-	require.NoError(t, scoringRepo.SaveScoringApplicationResult(ctx, *app))
+	createdApp.Score = &score
+	require.NoError(t, scoringRepo.SaveScoringApplicationResult(ctx, createdApp))
 
-	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(app.ApplicationID))
+	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(createdApp.ApplicationID))
 	require.NoError(t, err)
 	require.NotNil(t, fetched.Score)
 	require.Equal(t, score, *fetched.Score)

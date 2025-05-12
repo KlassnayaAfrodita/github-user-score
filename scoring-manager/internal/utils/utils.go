@@ -14,3 +14,7 @@ func ToUserStats(response *collector.CollectUserStatsResponse) repository.UserSt
 		Commits: response.Commits,
 	}
 }
+
+//func ToScoringRequestMessage(userStats repository.UserStats) kafka.ScoringRequestMessage {
+//
+//}

@@ -13,7 +13,7 @@ const (
 
 type ScoringApplication struct {
 	ApplicationID int64
-	UserID        int
+	UserID        int32
 	Status        ScoringStatus
 	Score         *int // указатель, так как score может быть null
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type ScoringRepositoryInterface interface {
-	CreateScoringApplication(ctx context.Context, app *ScoringApplication) error
+	CreateScoringApplication(ctx context.Context, app ScoringApplication) (ScoringApplication, error)
 	UpdateScoringApplicationStatus(ctx context.Context, appID int64, status ScoringStatus) error
 	SaveScoringApplicationResult(ctx context.Context, app ScoringApplication) error
 	GetScoringApplicationByID(ctx context.Context, appID string) (ScoringApplication, error)
@@ -28,20 +28,26 @@ VALUES ($1, $2)
 RETURNING application_id
 `
 
-func (repo *ScoringRepository) CreateScoringApplication(ctx context.Context, app *ScoringApplication) error {
+func (repo *ScoringRepository) CreateScoringApplication(ctx context.Context, app ScoringApplication) (ScoringApplication, error) {
 	tx, err := repo.db.InitTransaction(ctx, "CreateScoringApplication")
 	if err != nil {
-		return fmt.Errorf("repository.CreateScoringApplication: %w", err)
+		return ScoringApplication{}, fmt.Errorf("repository.CreateScoringApplication: %w", err)
 	}
 	defer tx.Rollback(ctx)
 
-	err = tx.QueryRow(ctx, createScoringApplicationQuery, app.UserID, app.Status).Scan(&app.ApplicationID)
+	var appID int64
+	err = tx.QueryRow(ctx, createScoringApplicationQuery, app.UserID, app.Status).Scan(&appID)
 	if err != nil {
-		return fmt.Errorf("repository.CreateScoringApplication: %w", err)
+		return ScoringApplication{}, fmt.Errorf("repository.CreateScoringApplication: %w", err)
 	}
 
-	tx.Commit(ctx)
-	return nil
+	app.ApplicationID = appID
+
+	if err := tx.Commit(ctx); err != nil {
+		return ScoringApplication{}, fmt.Errorf("repository.CreateScoringApplication: commit failed: %w", err)
+	}
+
+	return app, nil
 }
 
 const updateScoringApplicationStatusQuery = `UPDATE scoring_status SET status = $1 WHERE application_id = $2`
@@ -58,8 +64,7 @@ func (repo *ScoringRepository) UpdateScoringApplicationStatus(ctx context.Contex
 		return fmt.Errorf("repository.UpdateScoringApplicationStatus: %w", err)
 	}
 
-	tx.Commit(ctx)
-	return nil
+	return tx.Commit(ctx)
 }
 
 const saveScoringApplicationResultQuery = `INSERT INTO scoring_result (application_id, user_id, score)
@@ -81,8 +86,7 @@ func (repo *ScoringRepository) SaveScoringApplicationResult(ctx context.Context,
 		return fmt.Errorf("repository.SaveScoringApplicationResult: %w", err)
 	}
 
-	tx.Commit(ctx)
-	return nil
+	return tx.Commit(ctx)
 }
 
 const getScoringApplicationByID = `SELECT s.application_id, s.user_id, s.status, r.score
@@ -113,6 +117,5 @@ func (repo *ScoringRepository) GetScoringApplicationByID(ctx context.Context, ap
 
 	app.Score = score
 
-	tx.Commit(ctx)
-	return app, nil
+	return app, tx.Commit(ctx)
 }
