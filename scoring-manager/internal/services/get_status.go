@@ -3,14 +3,17 @@ package services
 import (
 	"context"
 	"fmt"
+	"github.com/KlassnayaAfrodita/github-user-score/scoring-manager/internal/utils"
 )
 
 func (service *ScoringManagerService) GetStatus(ctx context.Context, applicationID int) (ScoringStatus, error) {
 	scoringApplication, err := service.repo.GetScoringApplicationByID(ctx, applicationID)
 	if err != nil {
-		// возвращать более информотивную ошибку. типа напоминание пользователю, что нужно еще проскорить, потому что
-		// либо неправильный applicationID, либо заявка зависла и мы ее удалили
 		return ScoringStatus{}, fmt.Errorf("ScoringManagerService.GetStatus: %w", err)
+	}
+
+	if utils.IsEmptyScoringApplication(scoringApplication) {
+		return ScoringStatus{}, fmt.Errorf("Заявки нет в скоринге")
 	}
 
 	switch scoringApplication.Status {

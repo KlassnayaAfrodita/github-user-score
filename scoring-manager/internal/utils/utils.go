@@ -15,6 +15,6 @@ func ToUserStats(response *collector.CollectUserStatsResponse) repository.UserSt
 	}
 }
 
-//func ToScoringRequestMessage(userStats repository.UserStats) kafka.ScoringRequestMessage {
-//
-//}
+func IsEmptyScoringApplication(s repository.ScoringApplication) bool {
+	return s.ApplicationID == 0 && s.UserID == 0
+}

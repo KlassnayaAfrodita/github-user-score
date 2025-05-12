@@ -149,3 +149,27 @@ func TestScoringManagerService_GetStatus_RepoError(t *testing.T) {
 	require.Contains(t, err.Error(), fmt.Sprintf("ScoringManagerService.GetStatus: %s", expectedErr.Error()))
 	require.Equal(t, ScoringStatus{}, status)
 }
+
+func TestScoringManagerService_GetStatus_EmptyApplication(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	ctx := context.Background()
+	applicationID := 42
+
+	mockRepo := mocks.NewMockScoringRepositoryInterface(ctrl)
+	mockCollector := mocks.NewMockCollectorClientInterface(ctrl)
+	mockKafka := mocks.NewMockScoringKafkaClient(ctrl)
+
+	service := NewScoringManagerService(mockRepo, mockCollector, mockKafka)
+
+	mockRepo.EXPECT().
+		GetScoringApplicationByID(ctx, applicationID).
+		Return(repository.ScoringApplication{}, nil)
+
+	status, err := service.GetStatus(ctx, applicationID)
+
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "Заявки нет в скоринге")
+	require.Equal(t, ScoringStatus{}, status)
+}
