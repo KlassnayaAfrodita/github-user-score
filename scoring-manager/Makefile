@@ -8,7 +8,7 @@ COLLECTOR_GRPC_ADDR=localhost:50051
 
 # Unit tests
 test:
-	go test -v ./...
+	go test -v -count=1 ./...
 
 # Integration tests (Postgres must be running)
 integration-test:

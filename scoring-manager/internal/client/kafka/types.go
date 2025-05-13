@@ -10,7 +10,7 @@ type ScoringRequestMessage struct {
 }
 
 type ScoringResultMessage struct {
-	ApplicationID string  `json:"application_id"`
-	UserID        int     `json:"user_id"`
-	Scoring       float64 `json:"scoring"`
+	ApplicationID int64 `json:"application_id"`
+	UserID        int   `json:"user_id"`
+	Score         int   `json:"score"`
 }

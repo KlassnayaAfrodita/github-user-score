@@ -16,6 +16,7 @@ type ScoringManagerServiceInterface interface {
 	StartScoring(ctx context.Context, username string) (string, error)
 	GetStatus(ctx context.Context, applicationID int) (ScoringStatus, error)
 	MarkExpiredApplications(ctx context.Context, maxAgeMinutes int) error
+	ConsumingScoringResults(ctx context.Context) error
 }
 
 type ScoringManagerService struct {

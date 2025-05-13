@@ -1,3 +1,6 @@
+//go:build integration
+// +build integration
+
 package kafka
 
 import (
@@ -6,6 +9,7 @@ import (
 	"fmt"
 	"github.com/segmentio/kafka-go"
 	"github.com/stretchr/testify/require"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -51,9 +55,9 @@ func TestKafkaClient_PublishAndConsume(t *testing.T) {
 	client := NewKafkaClient([]string{kafkaBroker}, requestTopic, resultTopic, testGroupID)
 
 	expected := ScoringResultMessage{
-		ApplicationID: "test-app",
+		ApplicationID: int64(42),
 		UserID:        123,
-		Scoring:       99.1,
+		Score:         99,
 	}
 	data, err := json.Marshal(expected)
 	require.NoError(t, err)
@@ -67,7 +71,7 @@ func TestKafkaClient_PublishAndConsume(t *testing.T) {
 		defer writer.Close()
 
 		err := writer.WriteMessages(context.Background(), kafka.Message{
-			Key:   []byte(expected.ApplicationID),
+			Key:   []byte(strconv.Itoa(int(expected.ApplicationID))),
 			Value: data,
 		})
 		require.NoError(t, err)
