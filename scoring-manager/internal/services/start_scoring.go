@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"github.com/KlassnayaAfrodita/github-user-score/scoring-manager/internal/client/kafka"
 	"github.com/KlassnayaAfrodita/github-user-score/scoring-manager/internal/client/repository"
-	"strconv"
 )
 
-func (service *ScoringManagerService) StartScoring(ctx context.Context, username string) (string, error) {
+func (service *ScoringManagerService) StartScoring(ctx context.Context, username string) (int64, error) {
 	userStats, err := service.collector.GetUserStats(ctx, username)
 	if err != nil {
-		return "", fmt.Errorf("ScoringManagerService.StartScoring: %w", err)
+		return 0, fmt.Errorf("ScoringManagerService.StartScoring: %w", err)
 	}
 
 	var zeroScore *int
@@ -24,11 +23,11 @@ func (service *ScoringManagerService) StartScoring(ctx context.Context, username
 
 	scoringApplication, err = service.repo.CreateScoringApplication(ctx, scoringApplication)
 	if err != nil {
-		return "", fmt.Errorf("ScoringManagerService.StartScoring: %w", err)
+		return 0, fmt.Errorf("ScoringManagerService.StartScoring: %w", err)
 	}
 
 	msg := kafka.ScoringRequestMessage{
-		ApplicationID: strconv.Itoa(int(scoringApplication.ApplicationID)),
+		ApplicationID: scoringApplication.ApplicationID,
 		UserID:        int(scoringApplication.UserID),
 		Repos:         int(userStats.Repos),
 		Stars:         int(userStats.Stars),

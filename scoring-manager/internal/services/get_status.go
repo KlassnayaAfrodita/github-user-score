@@ -21,8 +21,8 @@ func (service *ScoringManagerService) GetStatus(ctx context.Context, application
 		return ScoringStatus{}, fmt.Errorf("scoring is not finished yet")
 	case 1:
 		return ScoringStatus{
-			status:        int32(scoringApplication.Status),
-			scoringResult: int32(*scoringApplication.Score),
+			Status:        int32(scoringApplication.Status),
+			ScoringResult: int32(*scoringApplication.Score),
 		}, nil
 	case 2:
 		return ScoringStatus{}, fmt.Errorf("scoring ended in error")

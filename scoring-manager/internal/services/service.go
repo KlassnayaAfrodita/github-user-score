@@ -8,12 +8,12 @@ import (
 )
 
 type ScoringStatus struct {
-	status        int32
-	scoringResult int32
+	Status        int32
+	ScoringResult int32
 }
 
 type ScoringManagerServiceInterface interface {
-	StartScoring(ctx context.Context, username string) (string, error)
+	StartScoring(ctx context.Context, username string) (int64, error)
 	GetStatus(ctx context.Context, applicationID int) (ScoringStatus, error)
 	MarkExpiredApplications(ctx context.Context, maxAgeMinutes int) error
 	ConsumingScoringResults(ctx context.Context) error
