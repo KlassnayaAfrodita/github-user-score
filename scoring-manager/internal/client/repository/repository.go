@@ -12,6 +12,7 @@ type ScoringRepositoryInterface interface {
 	UpdateScoringApplicationStatus(ctx context.Context, appID int64, status ScoringStatus) error
 	SaveScoringApplicationResult(ctx context.Context, app ScoringApplication) error
 	GetScoringApplicationByID(ctx context.Context, appID int) (ScoringApplication, error)
+	MarkExpiredApplications(ctx context.Context, maxAgeMinutes int) (int64, error)
 }
 
 type ScoringRepository struct {
@@ -118,4 +119,69 @@ func (repo *ScoringRepository) GetScoringApplicationByID(ctx context.Context, ap
 	app.Score = score
 
 	return app, tx.Commit(ctx)
+}
+
+const getExpiredApplicationsQuery = `
+	SELECT application_id
+	FROM scoring_status
+	WHERE status = $1 AND created_at < NOW() - ($2 || ' minutes')::interval;
+`
+
+func (repo *ScoringRepository) GetExpiredApplications(ctx context.Context, maxAgeMinutes int) ([]int64, error) {
+	tx, err := repo.db.InitTransaction(ctx, "GetExpiredApplications")
+	if err != nil {
+		return nil, fmt.Errorf("repository.GetExpiredApplications: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	rows, err := tx.Query(ctx, getExpiredApplicationsQuery, StatusInitial, fmt.Sprint(maxAgeMinutes))
+	if err != nil {
+		return nil, fmt.Errorf("repository.GetExpiredApplications: %w", err)
+	}
+	defer rows.Close()
+
+	var appIDs []int64
+	for rows.Next() {
+		var id int64
+		err = rows.Scan(&id)
+		switch err {
+		case nil:
+		// продолжаем просто
+		case pgx.ErrNoRows:
+			return []int64{}, nil
+		default:
+			return []int64{}, fmt.Errorf("repository.GetExpiredApplications: %w", err)
+		}
+		appIDs = append(appIDs, id)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("repository.GetExpiredApplications: %w", err)
+	}
+
+	return appIDs, tx.Commit(ctx)
+}
+
+const markApplicationsAsFailedQuery = `
+	UPDATE scoring_status
+	SET status = $1
+	WHERE application_id = ANY($2)
+`
+
+func (repo *ScoringRepository) MarkExpiredApplications(ctx context.Context, appIDs []int64) error {
+	if len(appIDs) == 0 {
+		return nil
+	}
+
+	tx, err := repo.db.InitTransaction(ctx, "MarkExpiredApplications")
+	if err != nil {
+		return fmt.Errorf("repository.MarkExpiredApplications: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	_, err = tx.Exec(ctx, markApplicationsAsFailedQuery, StatusFailed, appIDs)
+	if err != nil {
+		return fmt.Errorf("repository.MarkExpiredApplications: %w", err)
+	}
+	return tx.Commit(ctx)
 }

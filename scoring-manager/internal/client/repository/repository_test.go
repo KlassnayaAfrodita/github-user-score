@@ -102,3 +102,53 @@ func TestSaveScoringApplicationResult(t *testing.T) {
 	require.NotNil(t, fetched.Score)
 	require.Equal(t, score, *fetched.Score)
 }
+
+func forceInitialOldStatus(ctx context.Context, t *testing.T, appID int64, minutesAgo int) {
+	_, err := pool.Exec(ctx, `
+		UPDATE scoring_status
+		SET created_at = NOW() - ($1 || ' minutes')::interval
+		WHERE application_id = $2`, fmt.Sprint(minutesAgo), appID)
+	require.NoError(t, err)
+}
+
+func TestGetExpiredApplications(t *testing.T) {
+	setup(t)
+	ctx := context.Background()
+
+	app := ScoringApplication{
+		UserID: 444444,
+		Status: StatusInitial,
+	}
+	createdApp, err := scoringRepo.CreateScoringApplication(ctx, app)
+	require.NoError(t, err)
+	defer cleanupScoring(ctx, t, createdApp.ApplicationID)
+
+	forceInitialOldStatus(ctx, t, createdApp.ApplicationID, 10)
+
+	expiredIDs, err := scoringRepo.GetExpiredApplications(ctx, 5)
+	require.NoError(t, err)
+
+	require.Contains(t, expiredIDs, createdApp.ApplicationID)
+}
+
+func TestMarkExpiredApplications(t *testing.T) {
+	setup(t)
+	ctx := context.Background()
+
+	app := ScoringApplication{
+		UserID: 555555,
+		Status: StatusInitial,
+	}
+	createdApp, err := scoringRepo.CreateScoringApplication(ctx, app)
+	require.NoError(t, err)
+	defer cleanupScoring(ctx, t, createdApp.ApplicationID)
+
+	forceInitialOldStatus(ctx, t, createdApp.ApplicationID, 10)
+
+	err = scoringRepo.MarkExpiredApplications(ctx, []int64{createdApp.ApplicationID})
+	require.NoError(t, err)
+
+	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(createdApp.ApplicationID))
+	require.NoError(t, err)
+	require.Equal(t, StatusFailed, fetched.Status)
+}
