@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/segmentio/kafka-go"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -39,7 +40,7 @@ func (kc *KafkaClient) PublishScoringRequest(ctx context.Context, msg ScoringReq
 		return err
 	}
 	return kc.producer.WriteMessages(ctx, kafka.Message{
-		Key:   []byte(msg.ApplicationID),
+		Key:   []byte(strconv.Itoa(int(msg.ApplicationID))),
 		Value: data,
 		Time:  time.Now(),
 	})

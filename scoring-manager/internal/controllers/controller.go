@@ -10,7 +10,7 @@ type ScoringManagerHandler struct {
 	service services.ScoringManagerServiceInterface
 }
 
-func NewCollectorHandler(service services.ScoringManagerServiceInterface) *ScoringManagerHandler {
+func NewScoringManagerHandler(service services.ScoringManagerServiceInterface) *ScoringManagerHandler {
 	return &ScoringManagerHandler{
 		service: service,
 	}

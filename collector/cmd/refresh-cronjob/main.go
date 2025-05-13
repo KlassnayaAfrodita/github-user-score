@@ -1,4 +1,4 @@
-package refresh_cronjob
+package main
 
 import (
 	"context"
