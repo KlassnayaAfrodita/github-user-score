@@ -27,7 +27,7 @@ func TestScoringManagerService_GetStatus_Success(t *testing.T) {
 	service := NewScoringManagerService(mockRepo, mockCollector, mockKafka)
 
 	mockRepo.EXPECT().
-		GetScoringApplicationByID(ctx, appID).
+		GetScoringApplicationByID(ctx, int64(appID)).
 		Return(repository.ScoringApplication{
 			ApplicationID: int64(appID),
 			Status:        1,
@@ -55,7 +55,7 @@ func TestScoringManagerService_GetStatus_NotFinished(t *testing.T) {
 	service := NewScoringManagerService(mockRepo, mockCollector, mockKafka)
 
 	mockRepo.EXPECT().
-		GetScoringApplicationByID(ctx, appID).
+		GetScoringApplicationByID(ctx, int64(appID)).
 		Return(repository.ScoringApplication{
 			ApplicationID: int64(appID),
 			Status:        0,
@@ -83,7 +83,7 @@ func TestScoringManagerService_GetStatus_ErrorStatus(t *testing.T) {
 	service := NewScoringManagerService(mockRepo, mockCollector, mockKafka)
 
 	mockRepo.EXPECT().
-		GetScoringApplicationByID(ctx, appID).
+		GetScoringApplicationByID(ctx, int64(appID)).
 		Return(repository.ScoringApplication{
 			ApplicationID: int64(appID),
 			Status:        2,
@@ -111,7 +111,7 @@ func TestScoringManagerService_GetStatus_UnknownStatus(t *testing.T) {
 	service := NewScoringManagerService(mockRepo, mockCollector, mockKafka)
 
 	mockRepo.EXPECT().
-		GetScoringApplicationByID(ctx, appID).
+		GetScoringApplicationByID(ctx, int64(appID)).
 		Return(repository.ScoringApplication{
 			ApplicationID: int64(appID),
 			Status:        999,
@@ -140,7 +140,7 @@ func TestScoringManagerService_GetStatus_RepoError(t *testing.T) {
 	service := NewScoringManagerService(mockRepo, mockCollector, mockKafka)
 
 	mockRepo.EXPECT().
-		GetScoringApplicationByID(ctx, appID).
+		GetScoringApplicationByID(ctx, int64(appID)).
 		Return(repository.ScoringApplication{}, expectedErr)
 
 	status, err := service.GetStatus(ctx, appID)
@@ -164,7 +164,7 @@ func TestScoringManagerService_GetStatus_EmptyApplication(t *testing.T) {
 	service := NewScoringManagerService(mockRepo, mockCollector, mockKafka)
 
 	mockRepo.EXPECT().
-		GetScoringApplicationByID(ctx, applicationID).
+		GetScoringApplicationByID(ctx, int64(applicationID)).
 		Return(repository.ScoringApplication{}, nil)
 
 	status, err := service.GetStatus(ctx, applicationID)

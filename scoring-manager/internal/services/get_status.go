@@ -7,7 +7,7 @@ import (
 )
 
 func (service *ScoringManagerService) GetStatus(ctx context.Context, applicationID int) (ScoringStatus, error) {
-	scoringApplication, err := service.repo.GetScoringApplicationByID(ctx, applicationID)
+	scoringApplication, err := service.repo.GetScoringApplicationByID(ctx, int64(applicationID))
 	if err != nil {
 		return ScoringStatus{}, fmt.Errorf("ScoringManagerService.GetStatus: %w", err)
 	}

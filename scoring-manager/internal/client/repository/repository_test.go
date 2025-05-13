@@ -53,7 +53,7 @@ func TestCreateAndGetScoringApplication(t *testing.T) {
 
 	defer cleanupScoring(ctx, t, createdApp.ApplicationID)
 
-	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(createdApp.ApplicationID))
+	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, createdApp.ApplicationID)
 	require.NoError(t, err)
 
 	require.Equal(t, createdApp.UserID, fetched.UserID)
@@ -76,7 +76,7 @@ func TestUpdateScoringApplicationStatus(t *testing.T) {
 	err = scoringRepo.UpdateScoringApplicationStatus(ctx, createdApp.ApplicationID, StatusSuccess)
 	require.NoError(t, err)
 
-	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(createdApp.ApplicationID))
+	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, createdApp.ApplicationID)
 	require.NoError(t, err)
 	require.Equal(t, StatusSuccess, fetched.Status)
 }
@@ -97,7 +97,7 @@ func TestSaveScoringApplicationResult(t *testing.T) {
 	createdApp.Score = &score
 	require.NoError(t, scoringRepo.SaveScoringApplicationResult(ctx, createdApp))
 
-	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(createdApp.ApplicationID))
+	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, createdApp.ApplicationID)
 	require.NoError(t, err)
 	require.NotNil(t, fetched.Score)
 	require.Equal(t, score, *fetched.Score)
@@ -148,7 +148,7 @@ func TestMarkExpiredApplications(t *testing.T) {
 	err = scoringRepo.MarkExpiredApplications(ctx, []int64{createdApp.ApplicationID})
 	require.NoError(t, err)
 
-	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, fmt.Sprint(createdApp.ApplicationID))
+	fetched, err := scoringRepo.GetScoringApplicationByID(ctx, createdApp.ApplicationID)
 	require.NoError(t, err)
 	require.Equal(t, StatusFailed, fetched.Status)
 }

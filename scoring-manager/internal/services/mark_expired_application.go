@@ -1,11 +1,24 @@
 package services
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+)
 
-func (service *ScoringManagerService) MarkExpiredApplications(ctx context.Context, maxAgeMinutes int) (int64, error) {
-	affected, err := service.repo.MarkExpiredApplications(ctx, maxAgeMinutes)
+func (service *ScoringManagerService) MarkExpiredApplications(ctx context.Context, maxAgeMinutes int) error {
+	expiredIDs, err := service.repo.GetExpiredApplications(ctx, maxAgeMinutes)
 	if err != nil {
-		return 0, fmt.Errorf("ScoringManagerService.CleanupStuckApplications: %w", err)
+		return fmt.Errorf("ScoringManagerService.MarkExpiredApplications: %w", err)
 	}
-	return affected, nil
+
+	if len(expiredIDs) == 0 {
+		return nil
+	}
+
+	err = service.repo.MarkExpiredApplications(ctx, expiredIDs)
+	if err != nil {
+		return fmt.Errorf("ScoringManagerService.MarkExpiredApplications: %w", err)
+	}
+
+	return nil
 }

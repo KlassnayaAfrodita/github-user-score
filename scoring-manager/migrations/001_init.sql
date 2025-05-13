@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS scoring_status (
                                               application_id BIGSERIAL PRIMARY KEY,
                                               user_id INT NOT NULL,
-                                              status INTEGER NOT NULL CHECK (status IN (0, 1, 2))
+                                              status INTEGER NOT NULL CHECK (status IN (0, 1, 2)),
                                               created_at TIMESTAMP DEFAULT now()
     );
 

@@ -11,8 +11,9 @@ type ScoringRepositoryInterface interface {
 	CreateScoringApplication(ctx context.Context, app ScoringApplication) (ScoringApplication, error)
 	UpdateScoringApplicationStatus(ctx context.Context, appID int64, status ScoringStatus) error
 	SaveScoringApplicationResult(ctx context.Context, app ScoringApplication) error
-	GetScoringApplicationByID(ctx context.Context, appID int) (ScoringApplication, error)
-	MarkExpiredApplications(ctx context.Context, maxAgeMinutes int) (int64, error)
+	GetScoringApplicationByID(ctx context.Context, appID int64) (ScoringApplication, error)
+	GetExpiredApplications(ctx context.Context, maxAgeMinutes int) ([]int64, error)
+	MarkExpiredApplications(ctx context.Context, appIDs []int64) error
 }
 
 type ScoringRepository struct {
@@ -95,7 +96,7 @@ const getScoringApplicationByID = `SELECT s.application_id, s.user_id, s.status,
 		LEFT JOIN scoring_result r ON s.application_id = r.application_id
 		WHERE s.application_id = $1`
 
-func (repo *ScoringRepository) GetScoringApplicationByID(ctx context.Context, appID int) (ScoringApplication, error) {
+func (repo *ScoringRepository) GetScoringApplicationByID(ctx context.Context, appID int64) (ScoringApplication, error) {
 	tx, err := repo.db.InitTransaction(ctx, "UpdateScoringApplicationStatus")
 	if err != nil {
 		return ScoringApplication{}, fmt.Errorf("repository.GetScoringApplicationByID: %w", err)

@@ -56,8 +56,23 @@ func (mr *MockScoringRepositoryInterfaceMockRecorder) CreateScoringApplication(c
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateScoringApplication", reflect.TypeOf((*MockScoringRepositoryInterface)(nil).CreateScoringApplication), ctx, app)
 }
 
+// GetExpiredApplications mocks base method.
+func (m *MockScoringRepositoryInterface) GetExpiredApplications(ctx context.Context, maxAgeMinutes int) ([]int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetExpiredApplications", ctx, maxAgeMinutes)
+	ret0, _ := ret[0].([]int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetExpiredApplications indicates an expected call of GetExpiredApplications.
+func (mr *MockScoringRepositoryInterfaceMockRecorder) GetExpiredApplications(ctx, maxAgeMinutes any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExpiredApplications", reflect.TypeOf((*MockScoringRepositoryInterface)(nil).GetExpiredApplications), ctx, maxAgeMinutes)
+}
+
 // GetScoringApplicationByID mocks base method.
-func (m *MockScoringRepositoryInterface) GetScoringApplicationByID(ctx context.Context, appID int) (repository.ScoringApplication, error) {
+func (m *MockScoringRepositoryInterface) GetScoringApplicationByID(ctx context.Context, appID int64) (repository.ScoringApplication, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetScoringApplicationByID", ctx, appID)
 	ret0, _ := ret[0].(repository.ScoringApplication)
@@ -69,6 +84,20 @@ func (m *MockScoringRepositoryInterface) GetScoringApplicationByID(ctx context.C
 func (mr *MockScoringRepositoryInterfaceMockRecorder) GetScoringApplicationByID(ctx, appID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetScoringApplicationByID", reflect.TypeOf((*MockScoringRepositoryInterface)(nil).GetScoringApplicationByID), ctx, appID)
+}
+
+// MarkExpiredApplications mocks base method.
+func (m *MockScoringRepositoryInterface) MarkExpiredApplications(ctx context.Context, appIDs []int64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MarkExpiredApplications", ctx, appIDs)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MarkExpiredApplications indicates an expected call of MarkExpiredApplications.
+func (mr *MockScoringRepositoryInterfaceMockRecorder) MarkExpiredApplications(ctx, appIDs any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkExpiredApplications", reflect.TypeOf((*MockScoringRepositoryInterface)(nil).MarkExpiredApplications), ctx, appIDs)
 }
 
 // SaveScoringApplicationResult mocks base method.
