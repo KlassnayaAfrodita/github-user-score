@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	kafkaBroker  = "localhost:9092"
+	kafkaBroker  = "kafka:9092"
 	requestTopic = "scoring-requests"
 	resultTopic  = "scoring-results"
 	testGroupID  = "test-group"
@@ -43,7 +43,7 @@ func main() {
 	db := database.NewDatabase(pool)
 	repo := repository.NewScoringRepository(db)
 
-	collectorClient, err := collector.NewCollectorClient("localhost:50051", 5*time.Second)
+	collectorClient, err := collector.NewCollectorClient("collector:50051", 5*time.Second)
 	if err != nil {
 		log.Fatalf("failed to connect to collector: %v", err)
 	}

@@ -15,7 +15,7 @@ func main() {
 	defer stop()
 
 	kafkaClient := kafkaclient.NewKafkaClient(
-		[]string{"localhost:9092"},
+		[]string{"kafka:9092"},
 		"scoring-requests",
 		"scoring-results",
 		"scorer-group",

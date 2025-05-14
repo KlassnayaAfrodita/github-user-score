@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # === PostgreSQL ===
+  scoring-postgres:
+    image: postgres:15
+    container_name: scoring-manager-db
+    environment:
+      POSTGRES_DB: test_db_scoring_manager
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./pgdata-scoring:/var/lib/postgresql/data
+
+  collector-postgres:
+    image: postgres:15
+    container_name: collector-db
+    environment:
+      POSTGRES_DB: test_db_collector
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./pgdata-collector:/var/lib/postgresql/data
+
+  # === Kafka ===
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.2.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.2.1
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # === Migrator (по желанию) ===
+  migrator:
+    image: migrate/migrate
+    depends_on:
+      - collector-postgres
+    volumes:
+      - ./migrations:/migrations
+    entrypoint: >
+      sh -c "sleep 5 && migrate -path=/migrations -database=postgres://testuser:testpass@collector-postgres:5432/test_db_collector?sslmode=disable up"
+
+  # === Go-сервисы ===
+
+  collector:
+    build: ./collector
+    depends_on:
+      - collector-postgres
+    ports:
+      - "50051:50051"
+
+  scoring-manager:
+    build: ./scoring-manager
+    depends_on:
+      - scoring-postgres
+      - kafka
+      - collector
+    ports:
+      - "50052:50052"
+
+  score-service:
+    build: ./score-service
+    depends_on:
+      - kafka

@@ -1,4 +1,4 @@
-.PHONY: up-all down-all create-topics
+.PHONY: up-all down-all create-topics start up down logs restart
 
 # Поднять collector и scoring-manager
 up-all:
@@ -16,5 +16,19 @@ down-all:
 create-topics:
 	docker exec kafka kafka-topics --create --topic scoring_requests --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 || true
 	docker exec kafka kafka-topics --create --topic scoring_results --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 || true
+
+up:
+	docker-compose up --build -d
+
+down:
+	docker-compose down -v
+
+logs:
+	docker-compose logs -f --tail=100
+
+restart:
+	make down
+	make up
+
 
 # mockgen -source="scoring-manager/internal/client/repository/repository.go" -destination="scoring-manager/internal/pkg/mocks/repository.go" -package=mocks
