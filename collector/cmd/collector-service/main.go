@@ -28,7 +28,7 @@ func main() {
 	//	log.Fatal("DATABASE_URL is not set")
 	//}
 
-	dbURL := "postgres://testuser:testpass@postgres:5433/test_db_collector?sslmode=disable"
+	dbURL := "postgres://testuser:testpass@collector-postgres:5432/test_db_collector?sslmode=disable"
 
 	pool, err := pgxpool.New(ctx, dbURL)
 	if err != nil {

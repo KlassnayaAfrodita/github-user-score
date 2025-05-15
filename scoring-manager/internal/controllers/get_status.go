@@ -5,7 +5,7 @@ import (
 	pb "github.com/KlassnayaAfrodita/github-user-score/scoring-manager/pkg/pb/scoring-manager/api"
 )
 
-func (c *ScoringManagerHandler) GetScoringStatus(ctx context.Context, req *pb.GetStatusRequest) (*pb.GetStatusResponse, error) {
+func (c *ScoringManagerHandler) GetStatus(ctx context.Context, req *pb.GetStatusRequest) (*pb.GetStatusResponse, error) {
 	scoringStatus, err := c.service.GetStatus(ctx, int(req.ApplicationId))
 	if err != nil {
 		return nil, err

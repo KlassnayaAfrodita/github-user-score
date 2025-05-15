@@ -23,8 +23,8 @@ import (
 
 const (
 	kafkaBroker  = "kafka:9092"
-	requestTopic = "scoring-requests"
-	resultTopic  = "scoring-results"
+	requestTopic = "scoring_requests"
+	resultTopic  = "scoring_results"
 	testGroupID  = "test-group"
 )
 
@@ -32,7 +32,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	dbURL := "postgres://testuser:testpass@localhost:5434/test_db_scoring-manager?sslmode=disable"
+	dbURL := "postgres://testuser:testpass@scoring-postgres:5432/test_db_scoring_manager?sslmode=disable"
 
 	pool, err := pgxpool.New(ctx, dbURL)
 	if err != nil {

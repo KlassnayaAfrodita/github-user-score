@@ -16,9 +16,9 @@ func main() {
 
 	kafkaClient := kafkaclient.NewKafkaClient(
 		[]string{"kafka:9092"},
-		"scoring-requests",
-		"scoring-results",
-		"scorer-group",
+		"scoring_requests",
+		"scoring_results",
+		"test-group",
 	)
 
 	scoringService := service.NewScoringService(kafkaClient)

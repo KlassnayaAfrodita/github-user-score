@@ -5,6 +5,7 @@ go 1.23
 toolchain go1.23.6
 
 require (
+	//github.com/KlassnayaAfrodita/github-user-score/collector v0.0.0-00010101000000-000000000000
 	github.com/golang/mock v1.6.0
 	github.com/jackc/pgx/v5 v5.7.4
 	github.com/robfig/cron/v3 v3.0.1
@@ -15,6 +16,7 @@ require (
 )
 
 require (
+	github.com/KlassnayaAfrodita/github-user-score/collector v0.0.0-20250514093611-6f5fe103f866 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect

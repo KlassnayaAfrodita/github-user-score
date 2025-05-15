@@ -12,7 +12,8 @@ services:
     ports:
       - "5434:5432"
     volumes:
-      - ./pgdata-scoring:/var/lib/postgresql/data
+      - ./scoring-manager/pgdata-scoring:/var/lib/postgresql/data
+    restart: unless-stopped
 
   collector-postgres:
     image: postgres:15
@@ -24,9 +25,10 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - ./pgdata-collector:/var/lib/postgresql/data
+      - ./collector/pgdata-collector:/var/lib/postgresql/data
+    restart: unless-stopped
 
-  # === Kafka ===
+  # === Kafka & Zookeeper ===
   zookeeper:
     image: confluentinc/cp-zookeeper:7.2.1
     container_name: zookeeper
@@ -35,6 +37,7 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
+    restart: unless-stopped
 
   kafka:
     image: confluentinc/cp-kafka:7.2.1
@@ -49,8 +52,14 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
 
-  # === Migrator (по желанию) ===
+  # === Migrator (опционально) ===
   migrator:
     image: migrate/migrate
     depends_on:
@@ -59,6 +68,7 @@ services:
       - ./migrations:/migrations
     entrypoint: >
       sh -c "sleep 5 && migrate -path=/migrations -database=postgres://testuser:testpass@collector-postgres:5432/test_db_collector?sslmode=disable up"
+    restart: "no"
 
   # === Go-сервисы ===
 
@@ -68,17 +78,24 @@ services:
       - collector-postgres
     ports:
       - "50051:50051"
+    restart: unless-stopped
 
   scoring-manager:
     build: ./scoring-manager
     depends_on:
-      - scoring-postgres
-      - kafka
-      - collector
+      kafka:
+        condition: service_healthy
+      scoring-postgres:
+        condition: service_started
+      collector:
+        condition: service_started
     ports:
       - "50052:50052"
+    restart: unless-stopped
 
   score-service:
     build: ./score-service
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
+    restart: unless-stopped
