@@ -1,2 +1,2 @@
-![image](https://github.com/user-attachments/assets/3e08adad-60cc-4855-b804-8a257064f0d2)
+![image](https://github.com/user-attachments/assets/341cc6e4-730c-4ca0-b54a-57bed0d8e7b5)
 СХЕМА
