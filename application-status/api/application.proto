@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package application_status;
+option go_package = "github.com/KlassnayaAfrodita/github-user-score/collector/pkg/pb;applicationstatus";
+
+service ApplicationStatusService {
+  rpc GetScore(GetScoreRequest) returns (GetScoreResponse);
+}
+
+message GetScoreRequest {
+  int64 application_id = 1;
+}
+
+enum ScoringStatus {
+  INITIAL = 0;
+  SUCCESS = 1;
+  FAILED = 2;
+}
+
+message GetScoreResponse {
+  ScoringStatus status = 1;
+  int32 scoring = 2;
+}
