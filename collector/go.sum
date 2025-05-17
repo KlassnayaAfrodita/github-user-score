@@ -1,5 +1,4 @@
-github.com/KlassnayaAfrodita/github-user-score v0.0.0-20250513153231-f3984d51ecba h1:5UDNUDcnbLimHpjyGgKyI/TdoWQfym3Emc4oz85tsfY=
-github.com/KlassnayaAfrodita/github-user-score v0.0.0-20250513153231-f3984d51ecba/go.mod h1:YCUzpN3C/G3AXD1L7mDHbhMOHuVjfmZaP0UVmTQ7+Ts=
+github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

@@ -15,8 +15,9 @@ require (
 	google.golang.org/protobuf v1.36.6
 )
 
+require github.com/KlassnayaAfrodita/github-user-score/collector v0.0.0-20250514093611-6f5fe103f866
+
 require (
-	github.com/KlassnayaAfrodita/github-user-score/collector v0.0.0-20250514093611-6f5fe103f866 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
